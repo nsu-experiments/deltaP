@@ -1,0 +1,32 @@
+dpSem decision;
+
+north := 1; center := 2; south := 3;
+District := [north:south];
+rainy := 1; normal := 2; snowy := 3;
+Weather := [rainy:snowy];
+Month := [1:12];
+Second := [1:60*60*24];
+day := 1;
+night := 2;
+Shift := [day:night];
+
+dp incident(d, m, sh, w, s) : d in District & m in Month & sh in Shift & w in Weather & s in Second;
+incident(1, 1, 1, 1, 1) := true;
+incident(1, 1, 1, 1, 2) := true;
+incident(1, 1, 1, 1, 10000) := false;
+
+sp winter(month) := month = 12 | month = 1 | month = 2;
+
+input(curM, shift, curW);
+
+if(winter(curM) & shift in Shift & curW in Weather)
+then {
+  for d1 in District do {
+    dp incident(d, m, sh, w, s) : 
+      d = d1 & winter(m) & sh = shift & w = curW & s in Second;  
+
+    output("The probability of an accident in district ", d1, 
+            " = ", incident(d1, curM, shift, curW, 1));
+  }
+}
+else output("The data is incorrect.");

@@ -1,0 +1,32 @@
+dpSem simulation;
+
+Area := [1:15];
+rainy := 1; normal := 2; snowy := 3;
+Weather := [rainy:snowy];
+Time := [0:23];
+Month := [1:12];
+inHours := 2;
+
+sp winter(month) := month = 12 | month = 1 | month = 2;
+
+dp trafficJam(a, m, t, w) : a in Area & m in Month & t in Time & w in Weather;
+
+trafficJam(1, 1, 5, 1) := false;
+trafficJam(1, 1, 6, 1) := false;
+trafficJam(1, 1, 7, 1) := false;  
+
+input(curA, curM, curT, curW, inHours);
+
+if(curA in Area & winter(curM) & curT in Time & 
+    curT + inHours <= 23 & curW in Weather & inHours in [2:5])
+then {
+  dp trafficJam(a, m, t, w) : a = curA & winter(m) & 
+      (curT + inHours - 1 <= t) & (t <= curT + inHours) & w = curW;  
+
+  if(trafficJam(curA, curM, curT, curW))
+  then output("Traffic congestion may occur in Area ", curA, 
+    " in ", inHours, " hours.");
+  else output("Traffic congestion is not expected in Area ", curA, 
+    " in ", inHours, " hours.");
+}
+else output("The data is incorrect.");
