@@ -4,11 +4,37 @@
 import sys
 import random
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Tuple, Callable
+from typing import List, Dict, Any, Optional, Tuple, Callable, Union
 
 import h5py
 import numpy as np
 from ply import lex, yacc
+
+# ----------------------------------------------------------------------
+#                           CUSTOM EXCEPTIONS
+# ----------------------------------------------------------------------
+class DeltaPError(Exception):
+    """Base exception for DeltaP interpreter"""
+    def __init__(self, message: str, lineno: int = 0):
+        self.lineno = lineno
+        super().__init__(f"{message} at line {lineno}" if lineno else message)
+
+class DeltaPTypeError(DeltaPError):
+    """Type-related errors"""
+    pass
+
+class DeltaPNameError(DeltaPError):
+    """Name/variable errors"""
+    pass
+
+class DeltaPArityError(DeltaPError):
+    """Arity mismatch errors"""
+    pass
+
+class DeltaPDomainError(DeltaPError):
+    """Domain-related errors"""
+    pass
+
 
 # ----------------------------------------------------------------------
 #                                   TOKENS
@@ -488,16 +514,22 @@ class HDF5Manager:
         self.filename = filename
         self.h5file = h5py.File(filename, 'a')
 
-    def close(self):
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+    
+    def close(self) -> None:
         self.h5file.close()
 
-    def create_predicate(self, name: str, arity: int):
+    def create_predicate(self, name: str, arity: int) -> None:
         if name in self.h5file:
             return
         fields = [(f'arg{i}', 'int64') for i in range(arity)] + [('value', 'int8')]
         self.h5file.create_dataset(name, shape=(0,), dtype=np.dtype(fields), maxshape=(None,))
 
-    def set_value(self, pred: str, args: Tuple[int, ...], value: int):
+    def set_value(self, pred: str, args: Tuple[int, ...], value: int) -> None:
         ds = self.h5file[pred]
         arity = len([f for f in ds.dtype.names if f.startswith('arg')])
         idx = None
@@ -527,28 +559,124 @@ class HDF5Manager:
                 args = tuple(row[f'arg{i}'] for i in range(arity))
                 result.append((args, int(row['value'])))
         return result
+    def get_stats(self, pred: str) -> Dict[str, int]:
+        """Return statistics about predicate data"""
+        ds = self.h5file[pred]
+        true_count = sum(1 for row in ds if row['value'] == 1)
+        false_count = sum(1 for row in ds if row['value'] == 0)
+        undef_count = sum(1 for row in ds if row['value'] == 2)
+        return {
+            'true': true_count,
+            'false': false_count,
+            'undef': undef_count,
+            'total': true_count + false_count + undef_count
+        }
+# ----------------------------------------------------------------------
+#                         PROGRAM VALIDATOR
+# ----------------------------------------------------------------------
+class ProgramValidator:
+    """Validates AST before execution"""
+    def __init__(self):
+        self.warnings: List[str] = []
+        self.errors: List[str] = []
+    
+    def validate(self, prog: Program) -> Tuple[List[str], List[str]]:
+        """Validate program and return (warnings, errors)"""
+        self.warnings = []
+        self.errors = []
+        # TODO: Add validation logic
+        # - Check for undefined variable references
+        # - Check predicate arity consistency
+        # - Check domain narrowing validity
+        return self.warnings, self.errors
 
+# ----------------------------------------------------------------------
+#                       EXPRESSION EVALUATOR
+# ----------------------------------------------------------------------
+class ExpressionEvaluator:
+    """Handles expression evaluation"""
+    def __init__(self, interpreter: 'Interpreter'):
+        self.interp = interpreter
+    
+    def eval(self, expr: Expr, local: Dict[str, Any]) -> Any:
+        """Evaluate an expression in given context"""
+        # Move eval_expr logic here
+        pass
 
+# ----------------------------------------------------------------------
+#                       PREDICATE MANAGER
+# ----------------------------------------------------------------------
+class PredicateManager:
+    """Manages static and dynamic predicates"""
+    def __init__(self, interpreter: 'Interpreter'):
+        self.interp = interpreter
+        self.static_preds: Dict[str, Tuple[List[str], Expr]] = {}
+        self.dynamic_preds: Dict[str, Tuple[List[str], Expr]] = {}
+    
+    def define_static(self, name: str, params: List[str], body: Expr, lineno: int = 0) -> None:
+        """Define a static predicate with validation"""
+        if name in self.interp.vars:
+            raise DeltaPNameError(f"Static predicate '{name}' conflicts with existing variable", lineno)
+        if name in self.dynamic_preds:
+            raise DeltaPNameError(f"Static predicate '{name}' conflicts with existing dynamic predicate", lineno)
+        self.static_preds[name] = (params, body)
+    
+    def define_dynamic(self, name: str, params: List[str], domain: Expr, lineno: int = 0) -> None:
+        """Define a dynamic predicate with validation"""
+        if name in self.interp.vars:
+            raise DeltaPNameError(f"Dynamic predicate '{name}' conflicts with existing variable", lineno)
+        if name in self.static_preds:
+            raise DeltaPNameError(f"Dynamic predicate '{name}' conflicts with existing static predicate", lineno)
+        if name in self.dynamic_preds:
+            old_arity = len(self.dynamic_preds[name][0])
+            new_arity = len(params)
+            if old_arity != new_arity:
+                raise DeltaPArityError(
+                    f"Cannot change arity of '{name}' from {old_arity} to {new_arity}", 
+                    lineno
+                )
+        self.dynamic_preds[name] = (params, domain)
+        self.interp.hdf5.create_predicate(name, len(params))
+    
+    def get_static(self, name: str) -> Optional[Tuple[List[str], Expr]]:
+        """Get static predicate definition"""
+        return self.static_preds.get(name)
+    
+    def get_dynamic(self, name: str) -> Optional[Tuple[List[str], Expr]]:
+        """Get dynamic predicate definition"""
+        return self.dynamic_preds.get(name)
+    
 # ----------------------------------------------------------------------
 #                           INTERPRETER
 # ----------------------------------------------------------------------
 class Interpreter:
     def __init__(self, db_filename: str):
         self.hdf5 = HDF5Manager(db_filename)
-        self.vars = {}
-        self.sp_defs = {}
-        self.dp_defs = {}
-        self.mode = 'decision'
-        self.not_func = lambda x: 1 - x
-        self.and_func = lambda x, y: x * y
-        self.or_func = lambda x, y: x + y - x * y
-        self.imply_func = lambda x, y: 1 - x + x * y
-        self.warnings_enabled = True 
+        self.vars: Dict[str, Any] = {}
+        self.predicates = PredicateManager(self)
+        
+        # For backward compatibility, this keeps sp_defs and dp_defs as properties
+        self.sp_defs = self.predicates.static_preds
+        self.dp_defs = self.predicates.dynamic_preds
+        
+        self.mode: str = 'decision'
+        self.not_func: Callable[[float], float] = lambda x: 1 - x
+        self.and_func: Callable[[float, float], float] = lambda x, y: x * y
+        self.or_func: Callable[[float, float], float] = lambda x, y: x + y - x * y
+        self.imply_func: Callable[[float, float], float] = lambda x, y: 1 - x + x * y
+        
+        self.warnings_enabled: bool = True
 
-    def close(self):
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+    
+    def close(self) -> None:
         self.hdf5.close()
 
-    def eval_expr(self, expr: Expr, local: Dict) -> Any:
+    def eval_expr(self, expr: Expr, local: Dict[str, Any]) -> Any:
         if isinstance(expr, ConstExpr):
             return expr.value
         if isinstance(expr, VarExpr):
@@ -556,7 +684,7 @@ class Interpreter:
                 return local[expr.name]
             if expr.name in self.vars:
                 return self.vars[expr.name]
-            raise RuntimeError(f"Undefined variable {expr.name}")
+            raise DeltaPNameError(f"Undefined variable '{expr.name}'", expr.lineno)
         if isinstance(expr, UnaryExpr):
             arg = self.eval_expr(expr.arg, local)
             if expr.op == '-':
@@ -574,7 +702,9 @@ class Interpreter:
             if expr.op == '*':
                 return left * right
             if expr.op == '/':
-                return left / right
+                if right == 0:
+                    raise DeltaPTypeError(f"Division by zero", expr.lineno)
+                return left / right            
             if expr.op == '%':
                 return left % right
             if expr.op == '&':
@@ -610,8 +740,10 @@ class Interpreter:
             s = self.eval_expr(expr.start, local)
             e = self.eval_expr(expr.end, local)
             if not isinstance(s, int) or not isinstance(e, int):
-                # ENHANCED ERROR:
-                raise RuntimeError(f"Range bounds must be integers at line {expr.lineno}, got {type(s).__name__} and {type(e).__name__}")
+                raise DeltaPTypeError(
+                    f"Range bounds must be integers, got {type(s).__name__} and {type(e).__name__}", 
+                    expr.lineno
+                )
             return list(range(s, e + 1))
         if isinstance(expr, QuantExpr):
             domain = self.eval_expr(expr.domain, local)
@@ -640,8 +772,10 @@ class Interpreter:
             if name in self.sp_defs:
                 params, body = self.sp_defs[name]
                 if len(params) != len(args):
-                    # ENHANCED ERROR:
-                    raise RuntimeError(f"Static predicate '{name}' expects {len(params)} arguments, got {len(args)} at line {expr.lineno}")
+                    raise DeltaPArityError(
+                        f"Static predicate '{name}' expects {len(params)} arguments, got {len(args)}", 
+                        expr.lineno
+                    )
                 new_local = local.copy()
                 for p, a in zip(params, args):
                     new_local[p] = a
@@ -650,13 +784,15 @@ class Interpreter:
             if name in self.dp_defs:
                 params, domain = self.dp_defs[name]
                 if len(params) != len(args):
-                    raise RuntimeError(f"Dynamic predicate '{name}' expects {len(params)} arguments, got {len(args)} at line {expr.lineno}")
+                    raise DeltaPArityError(
+                        f"Dynamic predicate '{name}' expects {len(params)} arguments, got {len(args)}", 
+                        expr.lineno
+                    )
                 new_local = local.copy()
                 for p, a in zip(params, args):
                     new_local[p] = a
                 domain_val = self.eval_expr(domain, new_local)
                 if domain_val < 0.5:
-                    # ENHANCED: Warn about out-of-domain call
                     if self.warnings_enabled:
                         print(f"WARNING: Predicate '{name}{tuple(args)}' called outside its domain at line {expr.lineno}, using default probability 0.5", file=sys.stderr)
                     if self.mode == 'decision':
@@ -668,7 +804,7 @@ class Interpreter:
                     return prob
                 else:
                     return 1.0 if random.random() < prob else 0.0
-            # built-in predicates (keep existing checks)
+            # built-in predicates
             if name == 'nat':
                 return 1.0 if isinstance(args[0], int) and args[0] >= 0 else 0.0
             if name == 'int':
@@ -683,12 +819,10 @@ class Interpreter:
                 return 1.0 if isinstance(args[0], list) else 0.0
             if name == 'range':
                 return 1.0 if isinstance(args[0], range) else 0.0
-            # ENHANCED ERROR:
-            raise RuntimeError(f"Undefined predicate '{name}' at line {expr.lineno}")
-        # ENHANCED ERROR:
-        raise RuntimeError(f"Unknown expression type {type(expr).__name__} at line {getattr(expr, 'lineno', 0)}")
-
-    def compute_dynamic_prob(self, pred: str, args: Tuple) -> float:
+            raise DeltaPNameError(f"Undefined predicate '{name}'", expr.lineno)
+        raise DeltaPError(f"Unknown expression type {type(expr).__name__}", getattr(expr, 'lineno', 0))
+    
+    def compute_dynamic_prob(self, pred: str, args: Tuple[int, ...]) -> float:
         params, domain = self.dp_defs[pred]
         entries = self.hdf5.get_all_entries(pred)
         pos = neg = 0
