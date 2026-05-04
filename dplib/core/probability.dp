@@ -1,0 +1,194 @@
+// =============================================================================
+// dplib/core/probability.dp
+// Probabilistic utility functions and patterns for ΔP
+// =============================================================================
+//
+// This module provides basic probabilistic reasoning utilities that complement
+// the core ΔP language. It includes both static predicates (sp) for 
+// deterministic probability calculations and dynamic predicates (dp) for
+// stochastic processes.
+//
+// Usage:
+//   Copy this file's content into your .dp program, or use @import (when
+//   preprocessor is available):
+//   @import dplib.core.probability;
+//
+// =============================================================================
+
+// =============================================================================
+// PROBABILITY VALIDATION
+// =============================================================================
+
+// Returns 1.0 if p is a valid probability (in [0, 1]), 0.0 otherwise
+// Examples: is_valid_prob(0.5) = 1.0, is_valid_prob(1.5) = 0.0
+sp is_valid_prob(p) := p >= 0.0 & p <= 1.0;
+
+// Returns 1.0 if all probabilities sum to approximately 1.0
+// Tolerance of 0.01 for floating point errors
+// Examples: is_normalized(0.3, 0.7) = 1.0, is_normalized(0.3, 0.5) = 0.0
+sp is_normalized(p1, p2) := 
+    (p1 + p2 >= 0.99) & (p1 + p2 <= 1.01);
+
+sp is_normalized3(p1, p2, p3) := 
+    (p1 + p2 + p3 >= 0.99) & (p1 + p2 + p3 <= 1.01);
+
+
+// =============================================================================
+// COMPLEMENTARY PROBABILITY
+// =============================================================================
+
+// Returns the complement of a probability: P(not A) = 1 - P(A)
+// Examples: complement(0.3) = 0.7, complement(0.0) = 1.0
+sp complement(p) := 1.0 - p;
+
+
+// =============================================================================
+// INDEPENDENCE ASSUMPTIONS
+// =============================================================================
+
+// Joint probability assuming independence: P(A and B) = P(A) * P(B)
+// Examples: joint_independent(0.5, 0.4) = 0.2
+sp joint_independent(p_a, p_b) := p_a * p_b;
+
+// Union probability assuming independence: P(A or B) = P(A) + P(B) - P(A)*P(B)
+// Examples: union_independent(0.5, 0.4) = 0.7
+sp union_independent(p_a, p_b) := p_a + p_b - (p_a * p_b);
+
+
+// =============================================================================
+// CONDITIONAL PROBABILITY
+// =============================================================================
+
+// Bayes' theorem: P(A|B) = P(B|A) * P(A) / P(B)
+// Warning: No division-by-zero check, ensure p_b > 0
+// Examples: bayes(0.8, 0.3, 0.5) = 0.48
+sp bayes(p_b_given_a, p_a, p_b) := (p_b_given_a * p_a) / p_b;
+
+// Conditional probability: P(A|B) = P(A and B) / P(B)
+// Warning: No division-by-zero check, ensure p_b > 0
+sp conditional(p_a_and_b, p_b) := p_a_and_b / p_b;
+
+
+// =============================================================================
+// THRESHOLD-BASED DECISIONS
+// =============================================================================
+
+// Returns 1.0 if probability exceeds threshold, 0.0 otherwise
+// Useful for converting probabilities to binary decisions
+// Examples: exceeds_threshold(0.7, 0.5) = 1.0, exceeds_threshold(0.3, 0.5) = 0.0
+sp exceeds_threshold(prob, threshold) := prob >= threshold;
+
+// Returns 1.0 if probability indicates "likely" (p >= 0.5)
+sp is_likely(p) := p >= 0.5;
+
+// Returns 1.0 if probability indicates "unlikely" (p < 0.5)
+sp is_unlikely(p) := p < 0.5;
+
+// Returns 1.0 if probability indicates "highly likely" (p >= 0.8)
+sp is_highly_likely(p) := p >= 0.8;
+
+// Returns 1.0 if probability indicates "highly unlikely" (p <= 0.2)
+sp is_highly_unlikely(p) := p <= 0.2;
+
+
+// =============================================================================
+// PROBABILITY COMPARISON
+// =============================================================================
+
+// Returns 1.0 if p_a is more likely than p_b
+sp more_likely(p_a, p_b) := p_a > p_b;
+
+// Returns the higher of two probabilities
+sp max_prob(p_a, p_b) := (p_a > p_b & p_a) | (p_a <= p_b & p_b);
+
+// Returns the lower of two probabilities
+sp min_prob(p_a, p_b) := (p_a < p_b & p_a) | (p_a >= p_b & p_b);
+
+
+// =============================================================================
+// EXPECTED VALUE
+// =============================================================================
+
+// Expected value for a binary outcome: E[X] = p * value_if_true + (1-p) * value_if_false
+// Examples: expected_value_binary(0.6, 100, 0) = 60
+sp expected_value_binary(prob, value_if_true, value_if_false) := 
+    prob * value_if_true + (1.0 - prob) * value_if_false;
+
+// Expected value for two mutually exclusive outcomes with given probabilities
+// Examples: expected_value2(0.3, 100, 0.7, 50) = 65
+sp expected_value2(p1, v1, p2, v2) := p1 * v1 + p2 * v2;
+
+// Expected value for three mutually exclusive outcomes
+sp expected_value3(p1, v1, p2, v2, p3, v3) := p1 * v1 + p2 * v2 + p3 * v3;
+
+
+// =============================================================================
+// RISK AND UNCERTAINTY MEASURES
+// =============================================================================
+
+// Shannon entropy for binary outcome: H(p) = -p*log2(p) - (1-p)*log2(1-p)
+// Approximated using ln instead of log2 (divide by ln(2) ≈ 0.693)
+// Note: This is a simplified version, true implementation needs log function
+// For now, we provide a linear approximation for uncertainty
+// Maximum uncertainty at p=0.5, minimum at p=0 or p=1
+sp uncertainty_linear(p) := 1.0 - (2.0 * p - 1.0) * (2.0 * p - 1.0);
+
+
+// =============================================================================
+// PROBABILITY SCALING AND ADJUSTMENT
+// =============================================================================
+
+// Scales probability by a factor (useful for confidence adjustments)
+// Ensures result stays in [0, 1]
+// Examples: scale_prob(0.5, 1.2) = 0.6, scale_prob(0.9, 1.5) = 1.0
+sp scale_prob(p, factor) := 
+    (p * factor > 1.0 & 1.0) | 
+    (p * factor < 0.0 & 0.0) | 
+    (p * factor >= 0.0 & p * factor <= 1.0 & p * factor);
+
+// Linear interpolation between two probabilities
+// When t=0 returns p1, when t=1 returns p2
+// Examples: interpolate_prob(0.2, 0.8, 0.5) = 0.5
+sp interpolate_prob(p1, p2, t) := p1 + (p2 - p1) * t;
+
+
+// =============================================================================
+// CONFIDENCE INTERVALS (SIMPLIFIED)
+// =============================================================================
+
+// Returns 1.0 if observed frequency is within confidence range of expected probability
+// Simple binomial approximation: checks if |freq - prob| <= margin
+// Examples: within_confidence(0.55, 0.5, 0.1) = 1.0 (55% within 10% of 50%)
+sp within_confidence(observed_freq, expected_prob, margin) := 
+    (observed_freq >= expected_prob - margin) & 
+    (observed_freq <= expected_prob + margin);
+
+
+// =============================================================================
+// PROBABILITY CATEGORIES
+// =============================================================================
+
+// Categorizes probability into verbal labels
+// Returns: 5 (very high), 4 (high), 3 (medium), 2 (low), 1 (very low)
+sp prob_category(p) := 
+    (p >= 0.8 & 5) | 
+    (p >= 0.6 & p < 0.8 & 4) | 
+    (p >= 0.4 & p < 0.6 & 3) | 
+    (p >= 0.2 & p < 0.4 & 2) | 
+    (p < 0.2 & 1);
+
+
+// =============================================================================
+// WEIGHTED PROBABILITY
+// =============================================================================
+
+// Weighted average of probabilities (weights must sum to 1.0)
+// Examples: weighted_prob2(0.3, 0.6, 0.7, 0.4) = 0.46
+sp weighted_prob2(p1, w1, p2, w2) := p1 * w1 + p2 * w2;
+
+sp weighted_prob3(p1, w1, p2, w2, p3, w3) := p1 * w1 + p2 * w2 + p3 * w3;
+
+
+// =============================================================================
+// END OF dplib/core/probability.dp
+// =============================================================================

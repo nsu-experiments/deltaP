@@ -1,0 +1,128 @@
+// =============================================================================
+// dplib/core/math.dp
+// Mathematical utility functions for ΔP
+// =============================================================================
+//
+// This module provides basic mathematical operations that are not part of the
+// core ΔP language but are commonly needed across domains. All functions are
+// implemented as static predicates (sp) and are deterministic.
+//
+// Usage:
+//   Copy this file's content into your .dp program, or use @import (when
+//   preprocessor is available):
+//   @import dplib.core.math;
+//
+// =============================================================================
+
+// =============================================================================
+// ABSOLUTE VALUE AND SIGN
+// =============================================================================
+
+// Returns the absolute value of x
+// Examples: abs(-5) = 5, abs(3.14) = 3.14, abs(0) = 0
+sp abs(x) := (x >= 0 & x) | (x < 0 & -x);
+
+// Returns the sign of x: 1 if positive, -1 if negative, 0 if zero
+// Examples: sign(10) = 1, sign(-3) = -1, sign(0) = 0
+sp sign(x) := (x > 0 & 1) | (x < 0 & -1) | (x = 0 & 0);
+
+
+// =============================================================================
+// MIN/MAX OPERATIONS
+// =============================================================================
+
+// Returns the minimum of two values
+// Examples: min(3, 7) = 3, min(-2, -5) = -5
+sp min(a, b) := (a < b & a) | (a >= b & b);
+
+// Returns the maximum of two values
+// Examples: max(3, 7) = 7, max(-2, -5) = -2
+sp max(a, b) := (a > b & a) | (a <= b & b);
+
+
+// =============================================================================
+// CLAMPING (BOUNDS CONSTRAINT)
+// =============================================================================
+
+// Constrains value to be within [low, high] range
+// Examples: clamp(5, 0, 10) = 5, clamp(15, 0, 10) = 10, clamp(-5, 0, 10) = 0
+sp clamp(value, low, high) := min(max(value, low), high);
+
+
+// =============================================================================
+// NORMALIZATION
+// =============================================================================
+
+// Normalizes value from range [min_val, max_val] to [0, 1]
+// Useful for converting KPIs to comparable scales
+// Examples: 
+//   normalize(50, 0, 100) = 0.5
+//   normalize(1200, 1000, 2000) = 0.2
+// Warning: Assumes min_val < max_val (no division-by-zero check)
+sp normalize(value, min_val, max_val) := 
+    (value - min_val) / (max_val - min_val);
+
+// Inverse normalization: converts from [0, 1] back to [min_val, max_val]
+// Examples:
+//   denormalize(0.5, 0, 100) = 50
+//   denormalize(0.2, 1000, 2000) = 1200
+sp denormalize(norm_value, min_val, max_val) :=
+    min_val + norm_value * (max_val - min_val);
+
+
+// =============================================================================
+// LINEAR INTERPOLATION
+// =============================================================================
+
+// Linear interpolation between a and b
+// When t=0 returns a, when t=1 returns b, intermediate values interpolate
+// Examples:
+//   lerp(0, 10, 0.5) = 5
+//   lerp(100, 200, 0.25) = 125
+sp lerp(a, b, t) := a + (b - a) * t;
+
+
+// =============================================================================
+// RANGE CHECKING
+// =============================================================================
+
+// Returns 1.0 if value is within [low, high], 0.0 otherwise
+// Examples: in_range(5, 0, 10) = 1.0, in_range(15, 0, 10) = 0.0
+sp in_range(value, low, high) := value >= low & value <= high;
+
+// Returns 1.0 if value is outside [low, high], 0.0 otherwise
+// Examples: out_of_range(5, 0, 10) = 0.0, out_of_range(15, 0, 10) = 1.0
+sp out_of_range(value, low, high) := ~in_range(value, low, high);
+
+
+// =============================================================================
+// MODULAR ARITHMETIC
+// =============================================================================
+
+// Returns 1.0 if x is even, 0.0 otherwise
+// Examples: is_even(4) = 1.0, is_even(7) = 0.0
+sp is_even(x) := (x % 2) = 0;
+
+// Returns 1.0 if x is odd, 0.0 otherwise
+// Examples: is_odd(4) = 0.0, is_odd(7) = 1.0
+sp is_odd(x) := (x % 2) != 0;
+
+
+// =============================================================================
+// COMPARISON HELPERS
+// =============================================================================
+
+// Returns 1.0 if all three values are equal, 0.0 otherwise
+sp all_equal(a, b, c) := (a = b) & (b = c);
+
+// Returns 1.0 if values are in ascending order, 0.0 otherwise
+// Examples: is_ascending(1, 5, 10) = 1.0, is_ascending(5, 3, 10) = 0.0
+sp is_ascending(a, b, c) := (a < b) & (b < c);
+
+// Returns 1.0 if values are in descending order, 0.0 otherwise
+sp is_descending(a, b, c) := (a > b) & (b > c);
+
+
+// =============================================================================
+// END OF dplib/core/math.dp
+// =============================================================================
