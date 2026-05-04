@@ -1,0 +1,9 @@
+Weighting:Baseline(TE=0.5,SQ=0.2,SU=0.3)
+route_id,route_name,scenario,weight_scheme,prob_efficiency,prob_service,prob_carbon,prob_adaptability,prob_resilience,composite_score,priority_class
+1,Kazakhstan,baseline,baseline,0.6666666666666666,0.6666666666666666,0.5833333333333334,0.5,0.5,0.6416666666666667,1.0
+2,Kyrgyzstan,baseline,baseline,0.4166666666666667,0.4166666666666667,0.5,0.5,0.5,0.44166666666666665,2.0
+3,Hybrid,baseline,baseline,0.5833333333333334,0.5833333333333334,0.5,0.6666666666666666,0.75,0.5583333333333333,2.0
+1,Kazakhstan,border_tight,baseline,0.4166666666666667,0.4166666666666667,0.5833333333333334,0.5,0.5,0.44166666666666665,2.0
+2,Kyrgyzstan,border_tight,baseline,0.25,0.5,0.5,0.5,0.5,0.375,3.0
+3,Hybrid,border_tight,baseline,0.5833333333333334,0.5833333333333334,0.5,0.6666666666666666,0.75,0.5583333333333333,2.0
+FINDING:R1leadsundernormalconditions,butR3outperforms

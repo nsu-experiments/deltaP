@@ -5,6 +5,8 @@ import sys
 import random
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional, Tuple, Callable, Union
+from datetime import datetime
+import pandas as pd
 
 import h5py
 import numpy as np
@@ -571,6 +573,25 @@ class HDF5Manager:
             'undef': undef_count,
             'total': true_count + false_count + undef_count
         }
+# ----------------------------------------------------------------------
+#                         CSV EXPORTER
+# ----------------------------------------------------------------------
+
+class CSVExporter:
+    def __init__(self, base_name: str):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.filename = f"{base_name}_{timestamp}.csv"
+        self.rows: List[Dict[str, Any]] = []
+    
+    def add_row(self, data: Dict[str, Any]):
+        self.rows.append(data)
+    
+    def write(self):
+        if not self.rows:
+            return
+        df = pd.DataFrame(self.rows)
+        df.to_csv(self.filename, index=False)
+        print(f"Results exported to {self.filename}")
 # ----------------------------------------------------------------------
 #                         PROGRAM VALIDATOR
 # ----------------------------------------------------------------------

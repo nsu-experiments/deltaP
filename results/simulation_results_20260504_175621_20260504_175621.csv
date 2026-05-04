@@ -1,0 +1,28 @@
+output
+=== Russian-Chinese Bioethanol Logistics Simulation ===
+Scenario: Baseline (Summer Operations)
+Iterations:  100
+""
+Running simulation...
+--- Route R1 (Kazakhstan) ---
+Iteration 1:  1.0
+--- Route R2 (Kyrgyzstan) ---
+Iteration 2:  0.0
+--- Route R3 (Hybrid) ---
+Iteration 3:  1.0
+""
+=== Testing Route Resilience Under Disruptions ===
+R1 under border_tight scenario:
+  Result:  0.0
+R3 (Hybrid) under border_tight scenario:
+  Result:  1.0
+""
+=== Winter Operations (January) ===
+R1 (Kazakhstan) in winter:
+  Result:  1.0
+R3 (Hybrid) in winter:
+  Result:  0.0
+""
+=== Simulation Complete ===
+Note: Full statistical analysis requires multiple iterations
+      and CSV export integration for data analysis.
