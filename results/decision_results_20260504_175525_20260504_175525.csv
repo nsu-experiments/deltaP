@@ -1,0 +1,73 @@
+output
+=== Russian-Chinese Bioethanol Logistics Decision Analysis ===
+Scenario: Baseline Operations
+"Weighting: Baseline (TE=0.5, SQ=0.2, SU=0.3)"
+Method: Aggregating probabilities from 12 months of data
+""
+--- Route R1 (Kazakhstan) ---
+  Transport Efficiency: P =  0.6666666666666666
+  Service Quality: P =  0.6666666666666666
+  Carbon Limit: P =  0.5833333333333334
+  Adaptability: P =  0.5
+  Resilience: P =  0.5
+  Composite Score:  0.6416666666666667
+  Classification:  1.0
+""
+--- Route R2 (Kyrgyzstan) ---
+  Transport Efficiency: P =  0.4166666666666667
+  Service Quality: P =  0.4166666666666667
+  Carbon Limit: P =  0.5
+  Adaptability: P =  0.5
+  Resilience: P =  0.5
+  Composite Score:  0.44166666666666665
+  Classification:  2.0
+""
+--- Route R3 (Hybrid) ---
+  Transport Efficiency: P =  0.5833333333333334
+  Service Quality: P =  0.5833333333333334
+  Carbon Limit: P =  0.5
+  Adaptability: P =  0.6666666666666666
+  Resilience: P =  0.75
+  Composite Score:  0.5583333333333333
+  Classification:  2.0
+""
+=== Route Ranking (Baseline Scenario) ===
+1st: R1 (Kazakhstan) - Score:  0.6416666666666667
+""
+=== KEY ANALYSIS: Border-Tight Scenario ===
+Testing resilience under disruptions...
+""
+R1 (Kazakhstan):
+  Efficiency under border_tight: P =  0.4166666666666667
+  Score:  0.44166666666666665
+""
+R2 (Kyrgyzstan):
+  Efficiency under border_tight: P =  0.25
+  Score:  0.375
+""
+R3 (Hybrid):
+  Efficiency under border_tight: P =  0.5833333333333334
+  Score:  0.5583333333333333
+""
+=== Comparative Analysis: R1 vs R3 ===
+Baseline: R1 score - R3 score =  0.08333333333333337
+Border-tight: R1 score - R3 score =  -0.1166666666666667
+""
+"FINDING: R1 leads under normal conditions, but R3 outperforms"
+         under border disruptions. This validates the 'redundancy
+         and risk-buffering' mechanism from Zhang's research.
+""
+=== Decision Recommendations ===
+""
+PRIMARY ROUTE: Requires further analysis (scores tied)
+""
+CONTINGENCY ROUTE: R3 (Hybrid)
+  - Activates during border disruptions
+  - Maintains better performance than R1 under pressure
+  - Provides strategic redundancy
+""
+OPERATIONAL STRATEGY:
+  1. Primary: Use highest-scoring route under baseline
+  2. Monitor: Track border/policy conditions continuously
+  3. Switch: Activate R3 when disruption probability > 0.3
+  4. Maintain: Keep all routes operational for flexibility

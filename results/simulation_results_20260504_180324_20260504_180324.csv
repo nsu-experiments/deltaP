@@ -1,0 +1,4 @@
+iteration,route,scenario,month,meets_efficiency,meets_service,meets_carbon,composite_success
+1,Kazakhstan,1,6,1.0,1.0,1.0,1.0
+2,Kyrgyzstan,1,6,0.0,0.0,0.0,0.0
+3,Hybrid,1,6,1.0,1.0,1.0,1.0
