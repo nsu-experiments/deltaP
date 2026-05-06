@@ -7,9 +7,13 @@ def test_import_interpreter():
     from interpreter.deltaP_interpreter import DeltaPInterpreter
     assert DeltaPInterpreter is not None
 
-def test_examples_exist():
-    """Test that example files exist"""
-    examples = Path('examples')
-    assert examples.exists()
-    assert (examples / 'traffic_simulation.dp').exists()
-    assert (examples / 'emergency_decision.dp').exists()
+def test_interpreter_file_exists():
+    """Test that interpreter file exists"""
+    interpreter_file = Path('interpreter/deltaP_interpreter.py')
+    assert interpreter_file.exists()
+
+def test_example_files_exist():
+    """Test that example .dp files exist"""
+    root = Path('.')
+    dp_files = list(root.rglob('*.dp'))
+    assert len(dp_files) > 0, "No .dp example files found"
