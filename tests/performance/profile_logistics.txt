@@ -1,0 +1,38 @@
+         1353073 function calls (1338613 primitive calls) in 2.997 seconds
+
+   Ordered by: cumulative time
+   List reduced from 63 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    2.997    2.997 /Users/jr/Repositories/deltaP/interpreter/evaluator.py:440(run_program)
+  176/161    0.000    0.000    2.996    0.019 /Users/jr/Repositories/deltaP/interpreter/evaluator.py:301(execute_statement)
+14239/262    0.015    0.000    2.995    0.011 /Users/jr/Repositories/deltaP/interpreter/evaluator.py:59(eval_expr)
+      468    0.023    0.000    2.983    0.006 /Users/jr/Repositories/deltaP/interpreter/evaluator.py:253(compute_dynamic_prob)
+      468    0.092    0.000    2.952    0.006 /Users/jr/Repositories/deltaP/interpreter/hdf5_manager.py:72(get_all_entries)
+    25956    0.176    0.000    2.755    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:705(__iter__)
+    25488    0.961    0.000    2.575    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:742(__getitem__)
+    25488    0.637    0.000    0.637    0.000 {built-in method h5py.h5t.py_create}
+    76932    0.521    0.000    0.531    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:462(shape)
+    25488    0.028    0.000    0.331    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/selections.py:19(select)
+    25488    0.014    0.000    0.204    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:483(size)
+    25488    0.102    0.000    0.202    0.000 {method 'make_selection' of 'h5py._selector.Selector' objects}
+    25488    0.093    0.000    0.094    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:508(_selector)
+    25488    0.011    0.000    0.091    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/selections.py:227(__init__)
+    25488    0.080    0.000    0.080    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/selections.py:112(__init__)
+      468    0.018    0.000    0.044    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/group.py:348(__getitem__)
+    25956    0.036    0.000    0.038    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:536(dtype)
+   101952    0.033    0.000    0.033    0.000 /Users/jr/Repositories/deltaP/interpreter/hdf5_manager.py:82(<genexpr>)
+    25488    0.027    0.000    0.027    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/selections.py:133(nselect)
+    25488    0.017    0.000    0.024    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/selections.py:222(array_shape)
+      468    0.015    0.000    0.016    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:636(__init__)
+   236088    0.012    0.000    0.012    0.000 {built-in method builtins.isinstance}
+   156682    0.012    0.000    0.012    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/base.py:307(id)
+    25488    0.011    0.000    0.011    0.000 {built-in method numpy.zeros}
+    27365    0.008    0.000    0.010    0.000 <frozen importlib._bootstrap>:405(parent)
+ 1404/936    0.001    0.000    0.007    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/base.py:532(__get__)
+    25488    0.006    0.000    0.007    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:770(<genexpr>)
+      468    0.001    0.000    0.006    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/base.py:282(file)
+      468    0.003    0.000    0.006    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/dataset.py:734(_fast_read_ok)
+    50976    0.005    0.000    0.005    0.000 /Users/jr/anaconda3/lib/python3.11/site-packages/h5py/_hl/selections.py:217(mshape)
+
+

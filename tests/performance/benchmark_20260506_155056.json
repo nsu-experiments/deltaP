@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-05-06T15:50:36.329184",
+  "optimizations": {
+    "memoization": true,
+    "lazy_eval": true,
+    "parallel": false
+  },
+  "programs": [
+    {
+      "file": "v1/traffic_simulation.dp",
+      "iterations": 5,
+      "avg_time_ms": 2.673983400200086,
+      "min_time_ms": 1.9769999998970889,
+      "max_time_ms": 4.748542000015732,
+      "avg_cache_size": 0.0,
+      "times_ms": [
+        4.748542000015732,
+        1.9769999998970889,
+        2.411999999822001,
+        2.2089580006650067,
+        2.0234170006006025
+      ]
+    },
+    {
+      "file": "v1/emergency_decision.dp",
+      "iterations": 5,
+      "avg_time_ms": 4.6508834000633215,
+      "min_time_ms": 4.2568749995552935,
+      "max_time_ms": 5.042542000410322,
+      "avg_cache_size": 2.0,
+      "times_ms": [
+        5.042542000410322,
+        4.9161670003741165,
+        4.753874999551044,
+        4.284958000425831,
+        4.2568749995552935
+      ]
+    },
+    {
+      "file": "examples/logistics_decision.dp",
+      "iterations": 5,
+      "avg_time_ms": 2753.151383200202,
+      "min_time_ms": 2699.6586249997563,
+      "max_time_ms": 2777.25829100018,
+      "avg_cache_size": 84.0,
+      "times_ms": [
+        2777.25829100018,
+        2762.6692090007055,
+        2749.752916000034,
+        2776.417875000334,
+        2699.6586249997563
+      ]
+    },
+    {
+      "file": "examples/supply_chain_simulation.dp",
+      "iterations": 5,
+      "avg_time_ms": 1199.9879498000155,
+      "min_time_ms": 1177.9999159998624,
+      "max_time_ms": 1256.827749999502,
+      "avg_cache_size": 0.0,
+      "times_ms": [
+        1177.9999159998624,
+        1256.827749999502,
+        1182.3207500001445,
+        1201.5027080005893,
+        1181.2886249999792
+      ]
+    }
+  ]
+}

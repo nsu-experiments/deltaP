@@ -36,12 +36,18 @@ class Interpreter:
         self.warnings_enabled: bool = True
         self.csv_exporter = None 
         self.program_name = None  
+        # Performance optimizations
+        self.enable_memoization: bool = True
+        self.enable_lazy_eval: bool = True
+        self._memo_cache: Dict[Tuple, float] = {}
     def __enter__(self):
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-    
+    def clear_cache(self) -> None:
+        """Clear memoization cache between runs"""
+        self._memo_cache.clear()
     def close(self) -> None:
         """Close database connection"""
         self.hdf5.close()
@@ -71,8 +77,12 @@ class Interpreter:
             raise RuntimeError(f"Unknown unary op {expr.op}")
         
         if isinstance(expr, BinaryExpr):
-            left = self.eval_expr(expr.left, local)
-            right = self.eval_expr(expr.right, local)
+            # For most operators, evaluate both operands upfront
+            # Exception: & and | handle their own evaluation for lazy eval
+            if expr.op not in ('&', '|'):
+                left = self.eval_expr(expr.left, local)
+                right = self.eval_expr(expr.right, local)
+            
             if expr.op == '+':
                 return left + right
             if expr.op == '-':
@@ -86,8 +96,26 @@ class Interpreter:
             if expr.op == '%':
                 return left % right
             if expr.op == '&':
+                # Lazy evaluation: only compute right if left is true
+                if self.enable_lazy_eval:
+                    left = self.eval_expr(expr.left, local)
+                    if left < 0.5:
+                        return 0.0
+                    right = self.eval_expr(expr.right, local)
+                else:
+                    left = self.eval_expr(expr.left, local)
+                    right = self.eval_expr(expr.right, local)
                 return self.and_func(left, right)
             if expr.op == '|':
+                # Lazy evaluation: only compute right if left is false
+                if self.enable_lazy_eval:
+                    left = self.eval_expr(expr.left, local)
+                    if left >= 0.5:
+                        return 1.0
+                    right = self.eval_expr(expr.right, local)
+                else:
+                    left = self.eval_expr(expr.left, local)
+                    right = self.eval_expr(expr.right, local)
                 return self.or_func(left, right)
             if expr.op == '->':
                 return self.imply_func(left, right)
@@ -224,8 +252,14 @@ class Interpreter:
     
     def compute_dynamic_prob(self, pred: str, args: Tuple[int, ...]) -> float:
         """Compute probability for dynamic predicate from stored data"""
+        # Memoization check
+        if self.enable_memoization:
+            cache_key = (pred, args)
+            if cache_key in self._memo_cache:
+                return self._memo_cache[cache_key]
+        
         params, domain = self.dp_defs[pred]
-        entries = self.hdf5.get_all_entries(pred)
+        entries = self.hdf5.get_entries_cached(pred)
         pos = neg = 0
         
         for entry_args, value in entries:
@@ -248,7 +282,7 @@ class Interpreter:
                     f"WARNING: No data for predicate '{pred}{args}', using default probability 0.5", 
                     file=sys.stderr
                 )
-            return 0.5
+            result = 0.5
         elif total < 5:
             if self.warnings_enabled:
                 print(
@@ -256,8 +290,13 @@ class Interpreter:
                     f"probability may be unreliable", 
                     file=sys.stderr
                 )
+            return pos / total
+        # Cache result
+        if self.enable_memoization:
+            self._memo_cache[(pred, args)] = result
         
-        return pos / total
+        return result
+    
 
     def execute_statement(self, stmt: Statement) -> None:
         """Execute a single statement"""
@@ -357,7 +396,7 @@ class Interpreter:
                     )
             code = {'true': 1, 'false': 0, 'undef': 2}[stmt.value]
             self.hdf5.set_value(pred, tuple(args), code)
-        
+            self.hdf5.clear_cache() 
         elif isinstance(stmt, StaticPredDecl):
             if stmt.name in self.vars:
                 raise RuntimeError(
