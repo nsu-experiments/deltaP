@@ -15,6 +15,7 @@ class HDF5Manager:
     def __init__(self, filename: str):
         self.filename = filename
         self.h5file = h5py.File(filename, 'a')
+        self._dataset_cache: Dict[str, List[Tuple[Tuple[int, ...], int]]] = {}
 
     def __enter__(self):
         return self
@@ -82,7 +83,19 @@ class HDF5Manager:
                 args = tuple(row[f'arg{i}'] for i in range(arity))
                 result.append((args, int(row['value'])))
         return result
+    def get_entries_cached(self, pred: str) -> List[Tuple[Tuple[int, ...], int]]:
+        """Get all entries with caching to avoid repeated disk reads"""
+        if pred in self._dataset_cache:
+            return self._dataset_cache[pred]
+        
+        # Load once and cache
+        entries = self.get_all_entries(pred)
+        self._dataset_cache[pred] = entries
+        return entries
 
+    def clear_cache(self) -> None:
+        """Clear dataset cache (call after writing new data)"""
+        self._dataset_cache.clear()
     def get_stats(self, pred: str) -> Dict[str, int]:
         """Return statistics about predicate data"""
         ds = self.h5file[pred]
