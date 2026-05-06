@@ -4,3 +4,4 @@ h5py>=3.8.0
 ply>=3.11
 flake8>=7.0.0
 pytest>=7.4.0
+tomli>=2.0.0
