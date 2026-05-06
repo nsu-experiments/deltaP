@@ -1,0 +1,49 @@
+================================================================================
+Russian-Chinese Bioethanol Logistics - Simulation Results
+================================================================================
+Generated: 2026-05-05 20:10:13
+Total iterations: 1200
+
+
+================================================================================
+SCENARIO: Baseline
+================================================================================
+
+--- Hybrid (R3) ---
+  Success Rate:       0.333
+  Std Deviation:      0.472
+  95% CI:             [0.307, 0.360]
+  Sample Size:        1200
+
+  Component Rates:
+    Efficiency:       0.583
+    Service Quality:  0.583
+    Carbon Limit:     0.500
+
+--- Kazakhstan (R1) ---
+  Success Rate:       0.500
+  Std Deviation:      0.500
+  95% CI:             [0.472, 0.528]
+  Sample Size:        1200
+
+  Component Rates:
+    Efficiency:       0.667
+    Service Quality:  0.667
+    Carbon Limit:     0.583
+
+--- Kyrgyzstan (R2) ---
+  Success Rate:       0.250
+  Std Deviation:      0.433
+  95% CI:             [0.225, 0.275]
+  Sample Size:        1200
+
+  Component Rates:
+    Efficiency:       0.417
+    Service Quality:  0.500
+    Carbon Limit:     0.500
+
+Route Ranking (by success rate):
+  1. Kazakhstan (R1): 0.500
+  2. Hybrid (R3): 0.333
+  3. Kyrgyzstan (R2): 0.250
+
