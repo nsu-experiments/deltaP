@@ -4,8 +4,8 @@ from pathlib import Path
 
 def test_import_interpreter():
     """Test that interpreter module can be imported"""
-    from interpreter.delta_interpreter import DeltaInterpreter
-    assert DeltaInterpreter is not None
+    from interpreter.delta_interpreter import Interpreter
+    assert Interpreter is not None
 
 def test_interpreter_file_exists():
     """Test that interpreter file exists"""
