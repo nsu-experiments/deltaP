@@ -249,7 +249,18 @@ class DeltaParser:
         elif p[1] == '[' and p[3] == ':':
             p[0] = RangeExpr(p[2], p[4])
             p[0].lineno = p.lineno(1)
+    def p_expr_dotted_predicate(self, p):
+        '''expr : dotted_name LPAREN expr_list RPAREN'''
+        p[0] = PredicateExpr(p[1], p[3])
+        p[0].lineno = p.lineno(1)
 
+    def p_dotted_name(self, p):
+        '''dotted_name : ID DOT ID
+                    | dotted_name DOT ID'''
+        if len(p) == 4:  # ID DOT ID
+            p[0] = f"{p[1]}.{p[3]}"
+        else:  # dotted_name DOT ID
+            p[0] = f"{p[1]}.{p[3]}"
     def p_empty(self, p):
         'empty :'
         pass

@@ -1,0 +1,10 @@
+dpSem decision;
+
+output("Testing package system with dplib:");
+output("abs(-10) =");
+output(dplib.core.math.abs(-10));
+
+output("min(5, 3) =");
+output(dplib.core.math.min(5, 3));
+
+output("Package system working!");

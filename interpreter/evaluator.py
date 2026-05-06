@@ -11,17 +11,26 @@ from .ast_nodes import *
 from .exceptions import *
 from .hdf5_manager import HDF5Manager
 from .predicate_manager import PredicateManager
+from .module_integration import ModuleLoader
+from pathlib import Path
 from .csv_exporter import CSVExporter
 from datetime import datetime
 
 class Interpreter:
     """DeltaP program interpreter"""
     
-    def __init__(self, db_filename: str):
+    def __init__(self, db_filename: str, base_path: Optional[Path] = None):
         self.hdf5 = HDF5Manager(db_filename)
         self.vars: Dict[str, Any] = {}
         self.predicates = PredicateManager(self)
-        
+
+        self.base_path = base_path or Path.cwd()
+
+        # print(f"DEBUG INIT: base_path = {self.base_path}")  
+        # print(f"DEBUG INIT: cwd = {Path.cwd()}") 
+
+        self.module_loader = ModuleLoader(self.base_path)
+
         # For backward compatibility
         self.sp_defs = self.predicates.static_preds
         self.dp_defs = self.predicates.dynamic_preds
@@ -180,9 +189,12 @@ class Interpreter:
                 return res
         
         if isinstance(expr, PredicateExpr):
+            # Resolve dotted names (e.g., dplib.logistics.transport.route_optimal)
             name = expr.name
-            args = [self.eval_expr(a, local) for a in expr.args]
+            if '.' in name:
+                name = self._resolve_module_predicate(name)
             
+            args = [self.eval_expr(a, local) for a in expr.args]
             # Static predicate
             if name in self.sp_defs:
                 params, body = self.sp_defs[name]
@@ -453,3 +465,62 @@ class Interpreter:
         # Export CSV if enabled
         if self.csv_exporter:
             self.csv_exporter.write()
+
+    def _resolve_module_predicate(self, dotted_name: str) -> str:
+        """Load module and return resolved predicate name"""
+        # print(f"DEBUG: Resolving {dotted_name}")
+        
+        # Check if it's already registered (local predicate)
+        if dotted_name in self.sp_defs or dotted_name in self.dp_defs:
+            # print(f"DEBUG: Found as local predicate")
+            return dotted_name
+        
+        # It's a module reference - try to split and load
+        if '.' in dotted_name:
+            parts = dotted_name.split('.')
+            # Try progressively: dplib.core.math::abs, dplib.core::math.abs, etc.
+            for i in range(len(parts) - 1, 0, -1):
+                module_path = '.'.join(parts[:i])
+                pred_name = '.'.join(parts[i:])
+                
+                # print(f"DEBUG: Trying module={module_path}, pred={pred_name}")
+                
+                can_resolve = self.module_loader.resolver.resolve(module_path)
+                # print(f"DEBUG: resolver.resolve({module_path}) = {can_resolve}")
+                
+                # Try to load this module
+                if can_resolve:
+                    # print(f"DEBUG: Module {module_path} exists, loading...")
+                    self._load_module(module_path)
+                    
+                    # Now check if the predicate was registered
+                    full_name = f"{module_path}::{pred_name}"
+                    # print(f"DEBUG: Checking for {full_name} in sp_defs...")
+                    # print(f"DEBUG: sp_defs keys: {list(self.sp_defs.keys())[:5]}")  
+                    
+                    if full_name in self.sp_defs or full_name in self.dp_defs:
+                        # print(f"DEBUG: Found as {full_name}")
+                        return full_name
+        
+        # Not found
+        # print(f"DEBUG: Could not resolve, returning as-is")
+        return dotted_name
+    def _load_module(self, module_path: str) -> None:
+        """Load and parse a module file"""
+        if module_path in self.module_loader.loaded_modules:
+            return  # Already loaded
+        
+        source = self.module_loader.load_module(module_path)
+        if not source:
+            raise RuntimeError(f"Module not found: {module_path}")
+        
+        # Parse and register predicates
+        from .parser import DeltaParser
+        parser = DeltaParser()
+        module_ast = parser.parse(source)
+        
+        for stmt in module_ast.statements:
+            if isinstance(stmt, StaticPredDecl):
+                self.predicates.define_static(stmt.name, stmt.params, stmt.body, stmt.lineno, module=module_path)
+            elif isinstance(stmt, DynamicPredDecl):
+                self.predicates.define_dynamic(stmt.name, stmt.params, stmt.domain, stmt.lineno, module=module_path)

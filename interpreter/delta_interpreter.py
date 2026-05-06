@@ -5,6 +5,7 @@ DeltaP interpreter main entry point.
 """
 
 import sys
+from pathlib import Path
 from .parser import DeltaParser
 from .evaluator import Interpreter
 
@@ -18,6 +19,8 @@ def main():
     prog_file = sys.argv[1]
     db_file = sys.argv[2] if len(sys.argv) > 2 else "delta_db.h5"
     
+    base_path = Path.cwd()
+
     # Read source file
     with open(prog_file, 'r', encoding='utf-8-sig') as f:
         source = f.read()
@@ -31,7 +34,7 @@ def main():
         sys.exit(1)
     
     # Execute
-    interp = Interpreter(db_file)
+    interp = Interpreter(db_file, base_path=base_path)
     try:
         interp.run_program(prog)
     except Exception as e:

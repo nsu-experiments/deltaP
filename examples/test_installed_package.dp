@@ -1,0 +1,4 @@
+dpSem decision;
+
+output("Testing installed package greet predicate:");
+output(test-package.src.hello.greet("World"));
