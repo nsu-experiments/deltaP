@@ -216,7 +216,7 @@ r1_su := calc_prob_carbon(r1, current_scenario);
 r1_ad := calc_prob_adaptability(r1, current_scenario);
 r1_sr := calc_prob_resilience(r1, current_scenario);
 
-output("  Transport Efficiency: P = ", r1_te);
+output("  Transport Efficiency: P = ", r1_te, " (n=12 months)");
 output("  Service Quality: P = ", r1_sq);
 output("  Carbon Limit: P = ", r1_su);
 output("  Adaptability: P = ", r1_ad);
@@ -235,7 +235,7 @@ r2_su := calc_prob_carbon(r2, current_scenario);
 r2_ad := calc_prob_adaptability(r2, current_scenario);
 r2_sr := calc_prob_resilience(r2, current_scenario);
 
-output("  Transport Efficiency: P = ", r2_te);
+output("  Transport Efficiency: P = ", r2_te, " (n=12 months)");
 output("  Service Quality: P = ", r2_sq);
 output("  Carbon Limit: P = ", r2_su);
 output("  Adaptability: P = ", r2_ad);
@@ -254,7 +254,7 @@ r3_su := calc_prob_carbon(r3, current_scenario);
 r3_ad := calc_prob_adaptability(r3, current_scenario);
 r3_sr := calc_prob_resilience(r3, current_scenario);
 
-output("  Transport Efficiency: P = ", r3_te);
+output("  Transport Efficiency: P = ", r3_te, " (n=12 months)");
 output("  Service Quality: P = ", r3_sq);
 output("  Carbon Limit: P = ", r3_su);
 output("  Adaptability: P = ", r3_ad);

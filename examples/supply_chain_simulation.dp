@@ -2,19 +2,6 @@
 // supply_chain_simulation.dp
 // Russian-Chinese Bioethanol Supply Chain Simulation
 // =============================================================================
-//
-// This program simulates bioethanol transport from Kirov (Russia) to China
-// via three alternative routes under stochastic conditions. It uses dpSem 
-// simulation mode to sample Boolean outcomes (success/failure) based on 
-// probabilistic predicates.
-//
-// Outputs: CSV file with simulation results showing route performance under
-//          uncertainty (customs delays, weather disruptions, policy changes)
-//
-// Based on: Zhang, W. (2025). Russian-Chinese omnichannel logistics network
-//           for bioethanol supplies.
-//
-// =============================================================================
 
 dpSem simulation;
 
@@ -25,238 +12,66 @@ dpSem simulation;
 sp abs(x) := (x >= 0 & x) | (x < 0 & -x);
 sp min(a, b) := (a < b & a) | (a >= b & b);
 sp max(a, b) := (a > b & a) | (a <= b & b);
-sp clamp(value, low, high) := min(max(value, low), high);
-sp normalize(value, min_val, max_val) := (value - min_val) / (max_val - min_val);
-sp in_range(value, low, high) := value >= low & value <= high;
-
 
 // =============================================================================
 // IMPORT: dplib/domains/logistics/domains.dp
 // =============================================================================
 
-// Routes
 r1 := 1; r2 := 2; r3 := 3;
 Route := [r1:r3];
 
-// KPIs
-te := 1; sq := 2; su := 3; ad := 4; sr := 5;
-KPI := [te:sr];
-
-// Scenarios
 baseline := 1;
-carbon_strict := 2;
 border_tight := 3;
-carbon_and_border := 4;
-exchange_volatile := 5;
-customs_delay := 6;
-Scenario := [baseline:customs_delay];
+Scenario := [baseline:border_tight];
 
-// Months
 Month := [1:12];
-sp is_winter(m) := (m = 12) | (m = 1) | (m = 2);
-sp is_summer(m) := (m >= 6) & (m <= 8);
-
-// Weather
-clear := 1; rain := 2; snow := 3; extreme := 4;
-Weather := [clear:extreme];
-
-// Priority classification
-preferred := 1; alternative := 2; restricted := 3;
-Priority := [preferred:restricted];
-
-// Thresholds for KPI success
-theta1 := 0.6;  // Good performance
-theta2 := 0.4;  // Acceptable performance
-
-sp classify_route(cci_score) := 
-    (cci_score >= theta1 & preferred) |
-    (cci_score > theta2 & cci_score < theta1 & alternative) |
-    (cci_score <= theta2 & restricted);
-
 
 // =============================================================================
-// DYNAMIC PREDICATES: ROUTE PERFORMANCE UNDER UNCERTAINTY
+// DYNAMIC PREDICATES
 // =============================================================================
-// These predicates represent stochastic outcomes based on route characteristics
-// and external conditions. Values are stored in delta_db.h5
 
-// Transport efficiency: Does route meet time/cost targets?
-// Domain: All routes × all scenarios × all months
 dp meets_efficiency(route, scenario, month) : 
     route in Route & scenario in Scenario & month in Month;
 
-// Service quality: Does route maintain reliability?
 dp meets_service_quality(route, scenario, month) : 
     route in Route & scenario in Scenario & month in Month;
 
-// Sustainability: Does route stay under carbon emission limits?
 dp meets_carbon_limit(route, scenario, month) : 
     route in Route & scenario in Scenario & month in Month;
-
-// Adaptability: Can route handle disruptions?
-dp shows_adaptability(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
-
-// Strategic resilience: Does route maintain stability long-term?
-dp maintains_resilience(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
-
-
-// =============================================================================
-// COMPOSITE PERFORMANCE: OVERALL ROUTE SUCCESS
-// =============================================================================
-// A route "succeeds" if it meets most KPI thresholds (at least 3 out of 5)
 
 sp composite_success(route, scenario, month) := 
     meets_efficiency(route, scenario, month) & 
     meets_service_quality(route, scenario, month) & 
     meets_carbon_limit(route, scenario, month);
 
-
 // =============================================================================
-// SIMULATION PARAMETERS
+// SIMULATION: Sample all 12 months for each route
 // =============================================================================
 
-n_iterations := 100;  // Number of simulation runs
 current_scenario := baseline;
-current_month := 6;   // June (summer baseline)
 
-output("=== Russian-Chinese Bioethanol Logistics Simulation ===");
-output("Scenario: Baseline (Summer Operations)");
-output("Iterations: ", n_iterations);
-output("");
-
-
-// =============================================================================
-// SIMULATION LOOP: SAMPLE ROUTE PERFORMANCE
-// =============================================================================
-
-iteration := 1;
-r1_success_count := 0;
-r2_success_count := 0;
-r3_success_count := 0;
-
-output("Running simulation...");
-
-// Note: In a real implementation, this would be a loop
-// For demonstration, we show the structure for one iteration per route
-
-// === Route 1: Kazakhstan ===
-// === CSV Header (output once at start) ===
 output("iteration,route,scenario,month,meets_efficiency,meets_service,meets_carbon,composite_success");
 
-// === Route 1: Kazakhstan ===
-r1_eff := meets_efficiency(r1, current_scenario, current_month);
-r1_svc := meets_service_quality(r1, current_scenario, current_month);
-r1_carb := meets_carbon_limit(r1, current_scenario, current_month);
-r1_result := composite_success(r1, current_scenario, current_month);
-
-output("1,Kazakhstan,",current_scenario,",",current_month,",",r1_eff,",",r1_svc,",",r1_carb,",",r1_result);
-
-// === Route 2: Kyrgyzstan ===
-r2_eff := meets_efficiency(r2, current_scenario, current_month);
-r2_svc := meets_service_quality(r2, current_scenario, current_month);
-r2_carb := meets_carbon_limit(r2, current_scenario, current_month);
-r2_result := composite_success(r2, current_scenario, current_month);
-
-output("2,Kyrgyzstan,",current_scenario,",",current_month,",",r2_eff,",",r2_svc,",",r2_carb,",",r2_result);
-
-// === Route 3: Hybrid ===
-r3_eff := meets_efficiency(r3, current_scenario, current_month);
-r3_svc := meets_service_quality(r3, current_scenario, current_month);
-r3_carb := meets_carbon_limit(r3, current_scenario, current_month);
-r3_result := composite_success(r3, current_scenario, current_month);
-
-output("3,Hybrid,",current_scenario,",",current_month,",",r3_eff,",",r3_svc,",",r3_carb,",",r3_result);
-
-// =============================================================================
-// SAMPLE OUTPUT STRUCTURE (for CSV export integration)
-// =============================================================================
-// When CSV export is integrated, output format would be:
-//
-// timestamp,iteration,route,scenario,month,meets_efficiency,meets_service,
-// meets_carbon,shows_adaptability,maintains_resilience,composite_success
-//
-// 20250504_140523,1,1,1,6,1,1,1,0,1,1
-// 20250504_140523,1,2,1,6,0,1,1,1,0,0
-// 20250504_140523,1,3,1,6,1,1,1,1,1,1
-// ...
-
-
-// =============================================================================
-// SCENARIO COMPARISON: TEST UNDER DISRUPTIONS
-// =============================================================================
-
-output("");
-output("=== Testing Route Resilience Under Disruptions ===");
-
-// Test R1 under border tightening
-output("R1 under border_tight scenario:");
-r1_border_result := composite_success(r1, border_tight, current_month);
-output("  Result: ", r1_border_result);
-
-// Test R3 (Hybrid) under same conditions
-output("R3 (Hybrid) under border_tight scenario:");
-r3_border_result := composite_success(r3, border_tight, current_month);
-output("  Result: ", r3_border_result);
-
-
-// =============================================================================
-// WINTER OPERATIONS TEST
-// =============================================================================
-
-winter_month := 1;  // January
-
-output("");
-output("=== Winter Operations (January) ===");
-
-output("R1 (Kazakhstan) in winter:");
-r1_winter := composite_success(r1, baseline, winter_month);
-output("  Result: ", r1_winter);
-
-output("R3 (Hybrid) in winter:");
-r3_winter := composite_success(r3, baseline, winter_month);
-output("  Result: ", r3_winter);
-
-
-// =============================================================================
-// SUMMARY STATISTICS (placeholder)
-// =============================================================================
-// In full implementation with loop support:
-// - Success rate per route
-// - Average performance by scenario
-// - Seasonal variation analysis
-
-output("");
-output("=== Simulation Complete ===");
-output("Note: Full statistical analysis requires multiple iterations");
-output("      and CSV export integration for data analysis.");
-
-
-// =============================================================================
-// NEXT STEPS FOR FULL IMPLEMENTATION
-// =============================================================================
-// 1. Populate delta_db.h5 with training data:
-//    - meets_efficiency(1,1,6) := true;  (R1 performs well in summer baseline)
-//    - meets_efficiency(2,3,6) := false; (R2 struggles with border_tight)
-//    - etc.
-//
-// 2. Run simulation multiple times (100-1000 iterations)
-//
-// 3. Export results to timestamped CSV:
-//    simulation_results_YYYYMMDD_HHMMSS.csv
-//
-// 4. Analyze with Python:
-//    - Success rates by route
-//    - Scenario sensitivity
-//    - Seasonal patterns
-//
-// 5. Generate visualizations:
-//    - Score distribution (Figure 28 in Zhang's paper)
-//    - Adaptability comparison (Figure 30)
-//    - Resilience comparison (Figure 31)
-
-
-// =============================================================================
-// END OF supply_chain_simulation.dp
-// =============================================================================
+// Loop through all 12 months for each route
+for month in Month do {
+    // R1: Kazakhstan
+    r1_eff := meets_efficiency(r1, current_scenario, month);
+    r1_svc := meets_service_quality(r1, current_scenario, month);
+    r1_carb := meets_carbon_limit(r1, current_scenario, month);
+    r1_result := composite_success(r1, current_scenario, month);
+    output("1,Kazakhstan,",current_scenario,",",month,",",r1_eff,",",r1_svc,",",r1_carb,",",r1_result);
+    
+    // R2: Kyrgyzstan
+    r2_eff := meets_efficiency(r2, current_scenario, month);
+    r2_svc := meets_service_quality(r2, current_scenario, month);
+    r2_carb := meets_carbon_limit(r2, current_scenario, month);
+    r2_result := composite_success(r2, current_scenario, month);
+    output("2,Kyrgyzstan,",current_scenario,",",month,",",r2_eff,",",r2_svc,",",r2_carb,",",r2_result);
+    
+    // R3: Hybrid
+    r3_eff := meets_efficiency(r3, current_scenario, month);
+    r3_svc := meets_service_quality(r3, current_scenario, month);
+    r3_carb := meets_carbon_limit(r3, current_scenario, month);
+    r3_result := composite_success(r3, current_scenario, month);
+    output("3,Hybrid,",current_scenario,",",month,",",r3_eff,",",r3_svc,",",r3_carb,",",r3_result);
+}
