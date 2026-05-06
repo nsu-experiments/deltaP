@@ -308,12 +308,12 @@ class Interpreter:
             print(output_line)
             
             # Collect for CSV export - save raw line without quotes
-            if self.csv_exporter:
-                # Check if this looks like CSV data (contains commas)
-                if ',' in output_line and not output_line.startswith('==='):
-                    # Write raw to file, not as pandas row
-                    with open(self.csv_exporter.filename, 'a') as f:
-                        f.write(output_line.replace(' ', '') + '\n')
+            # if self.csv_exporter:
+            #     # Check if this looks like CSV data (contains commas)
+            #     if ',' in output_line and not output_line.startswith('==='):
+            #         # Write raw to file, not as pandas row
+            #         with open(self.csv_exporter.filename, 'a') as f:
+            #             f.write(output_line.replace(' ', '') + '\n')
         elif isinstance(stmt, IfStmt):
             cond_val = self.eval_expr(stmt.cond, {})
             if cond_val >= 0.5:
@@ -400,12 +400,13 @@ class Interpreter:
 
     def run_program(self, prog: Program):
         # Initialize CSV exporter based on mode
-        for stmt in prog.statements:
-            if isinstance(stmt, DPSemDecl):
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                self.csv_exporter = CSVExporter(f"{stmt.mode}_results_{timestamp}")
-                break
-        
+        # for stmt in prog.statements:
+        #     if isinstance(stmt, DPSemDecl):
+        #         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        #         self.csv_exporter = CSVExporter(f"{stmt.mode}_results_{timestamp}")
+        #         break
+        self.csv_exporter = None 
+
         # Execute program
         for stmt in prog.statements:
             self.execute_statement(stmt)
