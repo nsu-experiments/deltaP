@@ -39,62 +39,6 @@ def populate_data(db_file='delta_db.h5'):
         
         print("Simulation mode: Populating monthly data...")
         
-        # R1 baseline: 70% efficiency across months
-        for month in range(1, 13):
-            val = 1 if month <= 8 else 0  # 8 true, 4 false = ~67%
-            db.set_value('meets_efficiency', (1, 1, month), val)
-            
-            val_sq = 1 if month <= 8 else 0  # 65%
-            db.set_value('meets_service_quality', (1, 1, month), val_sq)
-            
-            val_su = 1 if month <= 7 else 0  # 60%
-            db.set_value('meets_carbon_limit', (1, 1, month), val_su)
-        
-        # R1 border_tight: 45% efficiency
-        for month in range(1, 13):
-            val = 1 if month <= 5 else 0  # 5 true, 7 false = ~42%
-            db.set_value('meets_efficiency', (1, 3, month), val)
-            
-            val_sq = 1 if month <= 5 else 0
-            db.set_value('meets_service_quality', (1, 3, month), val_sq)
-        
-        # R2 baseline: 45% efficiency
-        for month in range(1, 13):
-            val = 1 if month <= 5 else 0
-            db.set_value('meets_efficiency', (2, 1, month), val)
-            
-            val_sq = 1 if month <= 5 else 0
-            db.set_value('meets_service_quality', (2, 1, month), val_sq)
-        
-        # R2 border_tight: 25% efficiency
-        for month in range(1, 13):
-            val = 1 if month <= 3 else 0
-            db.set_value('meets_efficiency', (2, 3, month), val)
-        
-        # R3 baseline: 60% efficiency, HIGH adaptability/resilience
-        for month in range(1, 13):
-            val = 1 if month <= 7 else 0
-            db.set_value('meets_efficiency', (3, 1, month), val)
-            
-            val_sq = 1 if month <= 7 else 0
-            db.set_value('meets_service_quality', (3, 1, month), val_sq)
-            
-            val_ad = 1 if month <= 8 else 0  # 70% adaptability
-            db.set_value('shows_adaptability', (3, 1, month), val_ad)
-            
-            val_sr = 1 if month <= 9 else 0  # 75% resilience
-            db.set_value('maintains_resilience', (3, 1, month), val_sr)
-        
-        # R3 border_tight: MAINTAINS performance (58%)
-        for month in range(1, 13):
-            val = 1 if month <= 7 else 0
-            db.set_value('meets_efficiency', (3, 3, month), val)
-            
-            val_sq = 1 if month <= 7 else 0
-            db.set_value('meets_service_quality', (3, 3, month), val_sq)
-        
-        print("  ✓ Simulation data: 12 months × 3 routes × scenarios")
-        print()
         
         # =====================================================================
         # DECISION MODE DATA (2 arguments: route, scenario)
@@ -109,40 +53,85 @@ def populate_data(db_file='delta_db.h5'):
         
         # Since HDF5 only stores one row per unique args, we set the DOMINANT value
         # Based on our target probabilities
-        
-        # R1 baseline (should be 70% efficient, 65% service, 60% carbon)
-        db.set_value('prob_meets_efficiency', (1, 1), 1)      # Majority true
-        db.set_value('prob_meets_service_quality', (1, 1), 1)
-        db.set_value('prob_meets_carbon_limit', (1, 1), 1)
-        db.set_value('prob_shows_adaptability', (1, 1), 1)
-        db.set_value('prob_maintains_resilience', (1, 1), 1)
-        
-        # R1 border_tight (degrades to 45%)
-        db.set_value('prob_meets_efficiency', (1, 3), 0)      # Majority false now
-        db.set_value('prob_meets_service_quality', (1, 3), 0)
-        db.set_value('prob_meets_carbon_limit', (1, 3), 1)    # Carbon stays OK
-        
-        # R2 baseline (weak: 45%)
-        db.set_value('prob_meets_efficiency', (2, 1), 0)
-        db.set_value('prob_meets_service_quality', (2, 1), 0)
-        db.set_value('prob_meets_carbon_limit', (2, 1), 1)
-        
-        # R2 border_tight (very poor: 25%)
-        db.set_value('prob_meets_efficiency', (2, 3), 0)
-        db.set_value('prob_meets_service_quality', (2, 3), 0)
-        
-        # R3 baseline (good: 60%, excellent adaptability/resilience)
-        db.set_value('prob_meets_efficiency', (3, 1), 1)
-        db.set_value('prob_meets_service_quality', (3, 1), 1)
-        db.set_value('prob_meets_carbon_limit', (3, 1), 1)
-        db.set_value('prob_shows_adaptability', (3, 1), 1)    # KEY STRENGTH
-        db.set_value('prob_maintains_resilience', (3, 1), 1)  # KEY STRENGTH
-        
-        # R3 border_tight (MAINTAINS: 58%)
-        db.set_value('prob_meets_efficiency', (3, 3), 1)      # Still good!
-        db.set_value('prob_meets_service_quality', (3, 3), 1)
-        db.set_value('prob_meets_carbon_limit', (3, 3), 1)
-        
+        # R1 baseline: 67% efficiency, 67% service (different months), 58% carbon
+        for month in range(1, 13):
+            # Efficiency: months 1-8 (winter/spring good)
+            val_eff = 1 if month <= 8 else 0  # 67%
+            db.set_value('meets_efficiency', (1, 1, month), val_eff)
+            
+            # Service: months 1-4, 6-9 (skip month 5, add month 9) - different pattern!
+            val_sq = 1 if (month <= 4 or (month >= 6 and month <= 9)) else 0  # 67%
+            db.set_value('meets_service_quality', (1, 1, month), val_sq)
+            
+            # Carbon: months 1-7
+            val_su = 1 if month <= 7 else 0  # 58%
+            db.set_value('meets_carbon_limit', (1, 1, month), val_su)
+
+        # R1 border_tight: 42% efficiency, 42% service (different months)
+        for month in range(1, 13):
+            # Efficiency: months 1-5
+            val_eff = 1 if month <= 5 else 0  # 42%
+            db.set_value('meets_efficiency', (1, 3, month), val_eff)
+            
+            # Service: months 2-6 (shifted by 1)
+            val_sq = 1 if month >= 2 and month <= 6 else 0  # 42%
+            db.set_value('meets_service_quality', (1, 3, month), val_sq)
+
+        # R2 baseline: 42% efficiency, 50% service (different months)
+        for month in range(1, 13):
+            # Efficiency: months 1-5
+            val_eff = 1 if month <= 5 else 0  # 42%
+            db.set_value('meets_efficiency', (2, 1, month), val_eff)
+            
+            # Service: months 1-3, 8-10 (scattered)
+            val_sq = 1 if (month <= 3 or (month >= 8 and month <= 10)) else 0  # 50%
+            db.set_value('meets_service_quality', (2, 1, month), val_sq)
+            
+            # Carbon: months 1-6
+            val_su = 1 if month <= 6 else 0  # 50%
+            db.set_value('meets_carbon_limit', (2, 1, month), val_su)
+
+        # R2 border_tight: 25% efficiency, 50% service
+        for month in range(1, 13):
+            # Efficiency: months 1-3 (degraded)
+            val_eff = 1 if month <= 3 else 0  # 25%
+            db.set_value('meets_efficiency', (2, 3, month), val_eff)
+            
+            # Service: months 1-6 (maintains service!)
+            val_sq = 1 if month <= 6 else 0  # 50%
+            db.set_value('meets_service_quality', (2, 3, month), val_sq)
+
+        # R3 baseline: 58% efficiency, 58% service (different), HIGH adaptability/resilience
+        for month in range(1, 13):
+            # Efficiency: months 1-7
+            val_eff = 1 if month <= 7 else 0  # 58%
+            db.set_value('meets_efficiency', (3, 1, month), val_eff)
+            
+            # Service: months 1-5, 8-9 (different pattern)
+            val_sq = 1 if (month <= 5 or month == 8 or month == 9) else 0  # 58%
+            db.set_value('meets_service_quality', (3, 1, month), val_sq)
+            
+            # Carbon: months 2-7 (slightly offset)
+            val_su = 1 if month >= 2 and month <= 7 else 0  # 50%
+            db.set_value('meets_carbon_limit', (3, 1, month), val_su)
+            
+            # Adaptability: months 1-8 (70%)
+            val_ad = 1 if month <= 8 else 0
+            db.set_value('shows_adaptability', (3, 1, month), val_ad)
+            
+            # Resilience: months 1-9 (75%)
+            val_sr = 1 if month <= 9 else 0
+            db.set_value('maintains_resilience', (3, 1, month), val_sr)
+
+        # R3 border_tight: MAINTAINS performance (58% efficiency, 58% service)
+        for month in range(1, 13):
+            # Efficiency: months 1-7
+            val_eff = 1 if month <= 7 else 0  # 58%
+            db.set_value('meets_efficiency', (3, 3, month), val_eff)
+            
+            # Service: months 2-8 (shifted, still 58%)
+            val_sq = 1 if month >= 2 and month <= 8 else 0  # 58%
+            db.set_value('meets_service_quality', (3, 3, month), val_sq)
         print("=" * 60)
         print("Database populated successfully!")
         print(f"File: {db_file}")
