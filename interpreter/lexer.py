@@ -21,7 +21,7 @@ tokens = (
     'COLON', 'SEMICOLON', 'COMMA',
     'LPAREN', 'RPAREN', 'LBRACK', 'RBRACK', 'LBRACE', 'RBRACE',
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'MOD',
-    'NUMBER', 'STRING', 'ID'
+    'NUMBER', 'STRING', 'ID', 'DOT'
 )
 
 # Reserved words
@@ -61,7 +61,8 @@ t_MINUS = r'-'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
 t_MOD = r'%'
-
+# t_NAMESPACE = r'::'
+t_DOT = r'\.'
 
 def t_NUMBER(t):
     r'-?\d+(\.\d+)?'
