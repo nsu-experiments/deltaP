@@ -1,0 +1,19 @@
+// Test module system - calling predicates from dplib
+dpSem decision;
+
+// Test 1: Call abs from dplib.core.math
+output("Testing dplib.core.math.abs(-5):");
+output(dplib.core.math.abs(-5));
+
+// Test 2: Call min/max
+output("Testing dplib.core.math.min(3, 7):");
+output(dplib.core.math.min(3, 7));
+
+output("Testing dplib.core.math.max(3, 7):");
+output(dplib.core.math.max(3, 7));
+
+// Test 3: Call normalize
+output("Testing dplib.core.math.normalize(50, 0, 100):");
+output(dplib.core.math.normalize(50, 0, 100));
+
+output("All module tests complete!");
