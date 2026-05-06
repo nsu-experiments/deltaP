@@ -1,0 +1,31 @@
+[package]
+name = "dplib"
+version = "0.1.0"
+authors = ["Janne <ruponez@gmail.com>"]
+license = "MIT"
+description = "Standard library for the ΔP programming language"
+repository = "https://github.com/nsu-experiments/deltaP"
+
+[dependencies]
+# No external dependencies yet
+
+[lib]
+# Package contains reusable predicates
+type = "library"
+
+# Submodules that can be imported
+modules = [
+    "core.math",
+    "core.probability",
+    "core.statistics",
+    "core.validation",
+    "domains.emergency.incidents",
+    "domains.finance.risk",
+    "domains.logistics.domains",
+    "domains.logistics.thresholds",
+    "domains.logistics.transport"
+]
+
+[dev-dependencies]
+# Dependencies only needed for testing/development
+# (future use)
