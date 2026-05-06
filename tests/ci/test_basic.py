@@ -4,12 +4,12 @@ from pathlib import Path
 
 def test_import_interpreter():
     """Test that interpreter module can be imported"""
-    from interpreter.deltaP_interpreter import DeltaPInterpreter
-    assert DeltaPInterpreter is not None
+    from interpreter.delta_interpreter import DeltaInterpreter
+    assert DeltaInterpreter is not None
 
 def test_interpreter_file_exists():
     """Test that interpreter file exists"""
-    interpreter_file = Path('interpreter/deltaP_interpreter.py')
+    interpreter_file = Path('interpreter/delta_interpreter.py')
     assert interpreter_file.exists()
 
 def test_example_files_exist():
