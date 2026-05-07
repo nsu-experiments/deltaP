@@ -1,8 +1,0 @@
-dpSem decision;
-
-dp test_pred(route, scenario, month) : 
-    route in [1:3] & scenario in [1:1] & month in [1:12];
-
-output("R1 month 1: ", test_pred(1, 1, 1));
-output("R2 month 1: ", test_pred(2, 1, 1));
-output("R3 month 1: ", test_pred(3, 1, 1));
