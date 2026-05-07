@@ -6,9 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-# HDF5 database files
-*.h5
-
 # Distribution / packaging
 .Python
 build/
@@ -224,3 +221,16 @@ __marimo__/
 .DS_Store
 
 dp_modules/
+
+# ΔP specific
+*.h5                   
+dp_modules/             
+results/*.csv           
+results/plots/          
+results/publication/    
+results/quick/          
+delta_db.h5            
+
+# ΔP generated files
+parsetab.py            # PLY parser cache
+parser.out             # PLY parser debug
