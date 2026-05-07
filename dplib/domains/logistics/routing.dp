@@ -1,0 +1,174 @@
+// =============================================================================
+// dplib/domains/logistics/routing.dp
+// Generic route selection and optimization patterns
+// =============================================================================
+//
+// Provides abstract patterns for:
+// - Multi-criteria route evaluation
+// - Route classification and ranking
+// - Scenario-based decision making
+// - Composite scoring with weights
+//
+// User programs declare concrete routes and scoring functions, then use
+// these patterns for optimization.
+//
+// =============================================================================
+
+
+// =============================================================================
+// MULTI-CRITERIA EVALUATION PATTERN
+// =============================================================================
+
+// Generic composite score calculation
+// User provides: prob_criterion_1(route), prob_criterion_2(route), ...
+// User provides: weight_1, weight_2, weight_3
+sp generic_composite_score_3(p1, p2, p3, w1, w2, w3) :=
+    (p1 * w1) + (p2 * w2) + (p3 * w3);
+
+sp generic_composite_score_5(p1, p2, p3, p4, p5, w1, w2, w3, w4, w5) :=
+    (p1 * w1) + (p2 * w2) + (p3 * w3) + (p4 * w4) + (p5 * w5);
+
+
+// =============================================================================
+// ROUTE CLASSIFICATION PATTERN
+// =============================================================================
+
+// Three-tier priority classification based on score thresholds
+// User provides: upper_threshold, lower_threshold
+sp classify_by_thresholds(score, upper, lower) := 
+    (score >= upper & priority_preferred) |
+    (score > lower & score < upper & priority_alternative) |
+    (score <= lower & priority_restricted);
+
+// Default thresholds (user can override)
+default_upper_threshold := 0.6;
+default_lower_threshold := 0.4;
+
+
+// =============================================================================
+// ROUTE COMPARISON PATTERNS
+// =============================================================================
+
+sp route_outperforms(score_a, score_b) := score_a > score_b;
+
+sp routes_equivalent(score_a, score_b, tolerance) := 
+    abs(score_a - score_b) <= tolerance;
+
+sp route_difference(score_a, score_b) := score_a - score_b;
+
+
+// =============================================================================
+// SCENARIO-BASED SELECTION PATTERN
+// =============================================================================
+
+// Best route under given scenario
+// User implements: route_score(route, scenario)
+// This is a PATTERN - user fills in the scoring logic
+
+sp best_route_pattern(r1_score, r2_score, r3_score) :=
+    ((r1_score >= r2_score) & (r1_score >= r3_score) & 1) |  // r1 is best
+    ((r2_score > r1_score) & (r2_score >= r3_score) & 2) |   // r2 is best
+    ((r3_score > r1_score) & (r3_score > r2_score) & 3);     // r3 is best
+
+
+// =============================================================================
+// RESILIENCE ANALYSIS PATTERN
+// =============================================================================
+
+// Performance degradation under stress
+sp performance_drop(baseline_score, stress_score) := 
+    baseline_score - stress_score;
+
+sp performance_drop_percentage(baseline_score, stress_score) := 
+    (baseline_score - stress_score) / baseline_score;
+
+// Route shows resilience if drop is below threshold
+sp is_resilient(baseline_score, stress_score, max_drop) := 
+    performance_drop(baseline_score, stress_score) <= max_drop;
+
+
+// =============================================================================
+// REDUNDANCY VALUE PATTERN
+// =============================================================================
+
+// Redundancy is valuable when primary route degrades more than backup
+// This validates "risk-buffering" mechanisms like hybrid routes
+sp shows_redundancy_benefit(primary_normal, primary_stress, backup_normal, backup_stress) :=
+    (primary_normal > backup_normal) &  // Primary better under normal
+    (backup_stress > primary_stress);   // Backup better under stress
+
+
+// =============================================================================
+// DECISION RECOMMENDATION PATTERN
+// =============================================================================
+
+// Recommend primary route based on normal conditions
+sp recommend_primary(route_score, threshold) := 
+    route_score >= threshold;
+
+// Recommend contingency activation based on disruption probability
+sp activate_contingency(disruption_prob, activation_threshold) := 
+    disruption_prob >= activation_threshold;
+
+
+// =============================================================================
+// WEIGHTING SCHEME PATTERNS
+// =============================================================================
+
+// Common weighting profiles (user can define their own)
+weight_efficiency_focused := 1;
+weight_quality_focused := 2;
+weight_sustainability_focused := 3;
+weight_balanced := 4;
+weight_resilience_focused := 5;
+
+WeightProfile := [weight_efficiency_focused:weight_resilience_focused];
+
+
+// =============================================================================
+// PROBABILITY AGGREGATION PATTERNS
+// =============================================================================
+
+// Average probability across time periods
+sp avg_probability_12(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12) :=
+    (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + p10 + p11 + p12) / 12.0;
+
+// Minimum probability across scenarios (worst-case analysis)
+sp min_probability(p1, p2) := (p1 < p2 & p1) | (p1 >= p2 & p2);
+sp min_probability_3(p1, p2, p3) := min_probability(min_probability(p1, p2), p3);
+
+
+// =============================================================================
+// RANKING PATTERN
+// =============================================================================
+
+// Rank three routes by score (returns 1, 2, or 3 for each route's rank)
+sp rank_3_routes(route, score1, score2, score3) :=
+    // Route 1's rank
+    (route = 1 & score1 >= score2 & score1 >= score3 & 1) |
+    (route = 1 & ((score2 > score1 & score1 >= score3) | (score3 > score1 & score1 >= score2)) & 2) |
+    (route = 1 & score2 > score1 & score3 > score1 & 3) |
+    
+    // Route 2's rank
+    (route = 2 & score2 >= score1 & score2 >= score3 & 1) |
+    (route = 2 & ((score1 > score2 & score2 >= score3) | (score3 > score2 & score2 >= score1)) & 2) |
+    (route = 2 & score1 > score2 & score3 > score2 & 3) |
+    
+    // Route 3's rank
+    (route = 3 & score3 >= score1 & score3 >= score2 & 1) |
+    (route = 3 & ((score1 > score3 & score3 >= score2) | (score2 > score3 & score3 >= score1)) & 2) |
+    (route = 3 & score1 > score3 & score2 > score3 & 3);
+
+
+// =============================================================================
+// VALIDATION HELPERS
+// =============================================================================
+
+sp valid_score(s) := (s >= 0.0) & (s <= 1.0);
+sp valid_weight_sum(w1, w2, w3) := abs((w1 + w2 + w3) - 1.0) < 0.01;
+sp valid_weight_sum_5(w1, w2, w3, w4, w5) := abs((w1 + w2 + w3 + w4 + w5) - 1.0) < 0.01;
+
+
+// =============================================================================
+// END OF dplib/domains/logistics/routing.dp
+// =============================================================================

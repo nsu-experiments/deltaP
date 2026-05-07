@@ -1,0 +1,116 @@
+// =============================================================================
+// dplib/domains/logistics/risk.dp
+// Generic risk and disruption patterns for logistics networks
+// =============================================================================
+//
+// This module provides ABSTRACT patterns for modeling risk, delays, and
+// disruptions in logistics. Users instantiate with their own probability
+// distributions and route-specific parameters.
+//
+// Design principle: stdlib provides PATTERNS, users provide PROBABILITIES.
+//
+// Usage:
+//   @import dplib.domains.logistics.risk;
+//   
+//   // Define YOUR risk distributions
+//   dp delay_probability(my_route, scenario) := ...;
+//
+// =============================================================================
+
+
+// =============================================================================
+// RISK SEVERITY LEVELS (Generic)
+// =============================================================================
+
+low_risk := 1;
+medium_risk := 2;
+high_risk := 3;
+critical_risk := 4;
+
+RiskLevel := [low_risk:critical_risk];
+
+
+// =============================================================================
+// DISRUPTION TYPES (Generic)
+// =============================================================================
+
+weather_disruption := 1;        // Weather-related delays
+institutional_disruption := 2;  // Policy/customs changes
+infrastructure_disruption := 3; // Road/rail failures
+demand_disruption := 4;         // Market volatility
+
+DisruptionType := [weather_disruption:demand_disruption];
+
+
+// =============================================================================
+// DELAY CATEGORIES (Generic)
+// =============================================================================
+
+no_delay := 1;
+minor_delay := 2;       // < 24 hours
+moderate_delay := 3;    // 1-3 days
+major_delay := 4;       // > 3 days
+
+DelayCategory := [no_delay:major_delay];
+
+
+// =============================================================================
+// RISK MITIGATION STRATEGIES (Generic)
+// =============================================================================
+
+redundancy := 1;        // Multiple routes/nodes
+buffering := 2;         // Safety stock/time buffers
+diversification := 3;   // Multiple suppliers/carriers
+monitoring := 4;        // Real-time tracking
+
+MitigationStrategy := [redundancy:monitoring];
+
+
+// =============================================================================
+// GENERIC RISK PATTERNS (Users fill in probabilities)
+// =============================================================================
+
+// Weather impact on route reliability
+// Users define: dp weather_affects_route(route, weather, month) := ...;
+sp weather_high_impact(weather) := (weather = snow) | (weather = extreme);
+
+// Institutional risk patterns
+// Users define: dp institutional_risk(route, scenario) := ...;
+sp institutional_high_sensitivity(sensitivity) := 
+    sensitivity = high_sensitivity;
+
+// Disruption cascade potential
+// Users define: dp disruption_propagates(from_node, to_node) := ...;
+sp is_critical_node(node_role) := 
+    (node_role = transit_hub) | (node_role = border_crossing);
+
+
+// =============================================================================
+// RELIABILITY THRESHOLDS (Generic)
+// =============================================================================
+
+min_acceptable_reliability := 0.80;  // 80% on-time delivery
+target_reliability := 0.95;          // 95% target
+
+sp meets_reliability_target(reliability) := 
+    reliability >= target_reliability;
+
+sp meets_minimum_reliability(reliability) := 
+    reliability >= min_acceptable_reliability;
+
+
+// =============================================================================
+// RISK AGGREGATION PATTERNS (Generic formulas)
+// =============================================================================
+
+// Combined risk = 1 - (1-risk1)*(1-risk2)*...
+// Users implement with their specific risks
+
+// Weighted risk score pattern
+// risk_score = sum(weight_i * risk_i)
+// Users instantiate with their weights
+
+
+// =============================================================================
+// END OF dplib/domains/logistics/risk.dp
+// =============================================================================

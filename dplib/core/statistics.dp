@@ -1,0 +1,254 @@
+// =============================================================================
+// dplib/core/statistics.dp
+// Statistical operations for ΔP programs
+// =============================================================================
+//
+// Provides basic statistical functions for descriptive statistics, aggregation,
+// and simple inference. All functions are static predicates (sp).
+//
+// Usage:
+//   @import dplib.core.statistics;
+//
+// =============================================================================
+
+
+// =============================================================================
+// DESCRIPTIVE STATISTICS (2-3 values)
+// =============================================================================
+
+// Mean (average) of two values
+sp mean2(a, b) := (a + b) / 2.0;
+
+// Mean of three values
+sp mean3(a, b, c) := (a + b + c) / 3.0;
+
+// Mean of five values
+sp mean5(a, b, c, d, e) := (a + b + c + d + e) / 5.0;
+
+
+// =============================================================================
+// VARIANCE AND STANDARD DEVIATION
+// =============================================================================
+
+// Variance of two values
+sp variance2(a, b) := 
+    ((a - mean2(a, b)) * (a - mean2(a, b)) + 
+     (b - mean2(a, b)) * (b - mean2(a, b))) / 2.0;
+
+// Sample variance (n-1 denominator)
+sp sample_variance2(a, b) := 
+    ((a - mean2(a, b)) * (a - mean2(a, b)) + 
+     (b - mean2(a, b)) * (b - mean2(a, b)));
+
+// Standard deviation (approximation via variance)
+// Note: ΔP doesn't have sqrt(), so we provide squared deviation
+sp variance_sq2(a, b) := variance2(a, b);
+
+
+// =============================================================================
+// RANGE AND SPREAD
+// =============================================================================
+
+// Range (max - min) of two values
+sp range2(a, b) := max(a, b) - min(a, b);
+
+// Range of three values
+sp range3(a, b, c) := max(max(a, b), c) - min(min(a, b), c);
+
+// Midrange (average of min and max)
+sp midrange2(a, b) := (min(a, b) + max(a, b)) / 2.0;
+
+sp midrange3(a, b, c) := 
+    (min(min(a, b), c) + max(max(a, b), c)) / 2.0;
+
+
+// =============================================================================
+// MEDIAN (for small samples)
+// =============================================================================
+
+// Median of two values (just the mean)
+sp median2(a, b) := mean2(a, b);
+
+// Median of three values (middle value)
+sp median3(a, b, c) := 
+    ((a >= b) & (a <= c) & a) |
+    ((a >= c) & (a <= b) & a) |
+    ((b >= a) & (b <= c) & b) |
+    ((b >= c) & (b <= a) & b) |
+    ((c >= a) & (c <= b) & c) |
+    ((c >= b) & (c <= a) & c);
+
+
+// =============================================================================
+// PERCENTILES (simplified for small samples)
+// =============================================================================
+
+// First quartile (Q1) - approximation for 3 values
+sp q1_approx3(a, b, c) := min(min(a, b), c);
+
+// Third quartile (Q3) - approximation for 3 values
+sp q3_approx3(a, b, c) := max(max(a, b), c);
+
+// Interquartile range (IQR)
+sp iqr3(a, b, c) := q3_approx3(a, b, c) - q1_approx3(a, b, c);
+
+
+// =============================================================================
+// COEFFICIENT OF VARIATION
+// =============================================================================
+
+// Coefficient of variation: CV = (std_dev / mean) * 100
+// Using variance as proxy since we lack sqrt()
+sp cv_squared2(a, b) := 
+    (variance2(a, b) / mean2(a, b)) * 100.0;
+
+
+// =============================================================================
+// AGGREGATION HELPERS
+// =============================================================================
+
+// Sum of two values
+sp sum2(a, b) := a + b;
+
+// Sum of three values
+sp sum3(a, b, c) := a + b + c;
+
+// Sum of five values
+sp sum5(a, b, c, d, e) := a + b + c + d + e;
+
+// Product of two values
+sp product2(a, b) := a * b;
+
+// Product of three values
+sp product3(a, b, c) := a * b * c;
+
+
+// =============================================================================
+// WEIGHTED STATISTICS
+// =============================================================================
+
+// Weighted mean of two values
+// Weights must sum to 1.0
+sp weighted_mean2(v1, w1, v2, w2) := v1 * w1 + v2 * w2;
+
+// Weighted mean of three values
+sp weighted_mean3(v1, w1, v2, w2, v3, w3) := 
+    v1 * w1 + v2 * w2 + v3 * w3;
+
+// Weighted mean of five values
+sp weighted_mean5(v1, w1, v2, w2, v3, w3, v4, w4, v5, w5) := 
+    v1 * w1 + v2 * w2 + v3 * w3 + v4 * w4 + v5 * w5;
+
+
+// =============================================================================
+// CORRELATION (simplified)
+// =============================================================================
+
+// Covariance of two paired observations (x1,y1) and (x2,y2)
+sp covariance2(x1, y1, x2, y2) := 
+    ((x1 - mean2(x1, x2)) * (y1 - mean2(y1, y2)) +
+     (x2 - mean2(x1, x2)) * (y2 - mean2(y1, y2))) / 2.0;
+
+
+// =============================================================================
+// GROWTH AND CHANGE
+// =============================================================================
+
+// Percentage change: ((new - old) / old) * 100
+sp percent_change(old_val, new_val) := 
+    ((new_val - old_val) / old_val) * 100.0;
+
+// Growth rate (as decimal)
+sp growth_rate(old_val, new_val) := 
+    (new_val - old_val) / old_val;
+
+// Absolute change
+sp absolute_change(old_val, new_val) := new_val - old_val;
+
+
+// =============================================================================
+// NORMALIZATION
+// =============================================================================
+
+// Z-score normalization (for 2 values)
+// z = (x - mean) / std_dev
+// Using variance as proxy
+sp z_score_approx2(x, a, b) := 
+    (x - mean2(a, b)) / variance2(a, b);
+
+// Min-max normalization to [0, 1]
+sp normalize_to_unit(value, min_val, max_val) := 
+    (value - min_val) / (max_val - min_val);
+
+
+// =============================================================================
+// MOVING AVERAGES (for time series)
+// =============================================================================
+
+// Simple moving average of last 2 values
+sp sma2(current, previous) := mean2(current, previous);
+
+// Simple moving average of last 3 values
+sp sma3(t0, t1, t2) := mean3(t0, t1, t2);
+
+// Exponential moving average (EMA) with alpha=0.5
+sp ema2(current, previous_ema) := 
+    0.5 * current + 0.5 * previous_ema;
+
+
+// =============================================================================
+// COUNTING HELPERS
+// =============================================================================
+
+// Count how many values exceed threshold
+sp count_above2(a, b, threshold) := 
+    ((a > threshold & 1.0) | 0.0) + 
+    ((b > threshold & 1.0) | 0.0);
+
+sp count_above3(a, b, c, threshold) := 
+    ((a > threshold & 1.0) | 0.0) + 
+    ((b > threshold & 1.0) | 0.0) + 
+    ((c > threshold & 1.0) | 0.0);
+
+// Count how many values are below threshold
+sp count_below2(a, b, threshold) := 
+    ((a < threshold & 1.0) | 0.0) + 
+    ((b < threshold & 1.0) | 0.0);
+
+
+// =============================================================================
+// COMPARISON STATISTICS
+// =============================================================================
+
+// Relative difference: (a - b) / b
+sp relative_diff(a, b) := (a - b) / b;
+
+// Symmetric relative difference: 2*(a-b)/(a+b)
+sp symmetric_relative_diff(a, b) := 
+    (2.0 * (a - b)) / (a + b);
+
+
+// =============================================================================
+// OUTLIER DETECTION (simplified)
+// =============================================================================
+
+// Is value an outlier? (more than 2 * range away from mean)
+sp is_outlier3(x, a, b, c) := 
+    abs(x - mean3(a, b, c)) > (2.0 * range3(a, b, c));
+
+
+// =============================================================================
+// CONFIDENCE METRICS
+// =============================================================================
+
+// Confidence score based on sample agreement
+// Returns 1.0 if all values within tolerance of mean
+sp high_confidence3(a, b, c, tolerance) := 
+    (abs(a - mean3(a, b, c)) <= tolerance) & 
+    (abs(b - mean3(a, b, c)) <= tolerance) & 
+    (abs(c - mean3(a, b, c)) <= tolerance);
+
+
+// =============================================================================
+// END OF dplib/core/statistics.dp
+// =============================================================================
