@@ -12,9 +12,14 @@ from .evaluator import Interpreter
 
 def main():
     """Main entry point for DeltaP interpreter"""
-    if len(sys.argv) < 2:
-        print("Usage: python -m interpreter program.dp [database.h5]")
-        sys.exit(1)
+    # Handle --help
+    if len(sys.argv) < 2 or sys.argv[1] in ['--help', '-h']:
+        print("Usage: deltap <program.dp> [database.h5]")
+        print("\nΔP Probabilistic Programming Language Interpreter")
+        print("\nArguments:")
+        print("  program.dp    ΔP source file to execute")
+        print("  database.h5   HDF5 database file (default: delta_db.h5)")
+        return 0
     
     prog_file = sys.argv[1]
     db_file = sys.argv[2] if len(sys.argv) > 2 else "delta_db.h5"
@@ -41,6 +46,7 @@ def main():
         print(f"Runtime error: {e}")
         import traceback
         traceback.print_exc()
+        sys.exit(1)
     finally:
         interp.close()
 

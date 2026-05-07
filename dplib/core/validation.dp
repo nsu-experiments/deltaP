@@ -1,0 +1,212 @@
+// =============================================================================
+// dplib/core/validation.dp
+// Validation predicates for ΔP programs
+// =============================================================================
+//
+// Provides cross-domain validation helpers for ensuring data integrity,
+// constraint satisfaction, and input validation. All functions are static
+// predicates (sp) that return 1.0 (valid) or 0.0 (invalid).
+//
+// Usage:
+//   @import dplib.core.validation;
+//
+// =============================================================================
+
+
+// =============================================================================
+// NUMERIC RANGE VALIDATION
+// =============================================================================
+
+// Validates probability is in [0, 1]
+sp valid_probability(p) := (p >= 0.0) & (p <= 1.0);
+
+// Validates normalized score is in [0, 1]
+sp valid_normalized_score(s) := (s >= 0.0) & (s <= 1.0);
+
+// Validates percentage is in [0, 100]
+sp valid_percentage(x) := (x >= 0.0) & (x <= 100.0);
+
+// Validates value is non-negative
+sp valid_non_negative(x) := x >= 0.0;
+
+// Validates value is positive
+sp valid_positive(x) := x > 0.0;
+
+// Validates value is within custom range [min, max]
+sp valid_in_range(value, min_val, max_val) := 
+    (value >= min_val) & (value <= max_val);
+
+
+// =============================================================================
+// WEIGHT VALIDATION
+// =============================================================================
+
+// Validates two weights sum to 1.0 (tolerance: 0.01)
+sp valid_weight_sum2(w1, w2) := 
+    ((w1 + w2) >= 0.99) & ((w1 + w2) <= 1.01);
+
+// Validates three weights sum to 1.0
+sp valid_weight_sum3(w1, w2, w3) := 
+    ((w1 + w2 + w3) >= 0.99) & ((w1 + w2 + w3) <= 1.01);
+
+// Validates five weights sum to 1.0
+sp valid_weight_sum5(w1, w2, w3, w4, w5) := 
+    ((w1 + w2 + w3 + w4 + w5) >= 0.99) & 
+    ((w1 + w2 + w3 + w4 + w5) <= 1.01);
+
+// Validates all weights are non-negative
+sp valid_weights_non_negative2(w1, w2) := 
+    (w1 >= 0.0) & (w2 >= 0.0);
+
+sp valid_weights_non_negative3(w1, w2, w3) := 
+    (w1 >= 0.0) & (w2 >= 0.0) & (w3 >= 0.0);
+
+
+// =============================================================================
+// TEMPORAL VALIDATION
+// =============================================================================
+
+// Validates month is in [1, 12]
+sp valid_month(m) := (m >= 1) & (m <= 12);
+
+// Validates quarter is in [1, 4]
+sp valid_quarter(q) := (q >= 1) & (q <= 4);
+
+// Validates day of month (simplified, assumes max 31 days)
+sp valid_day(d) := (d >= 1) & (d <= 31);
+
+// Validates year is reasonable (1900-2100)
+sp valid_year(y) := (y >= 1900) & (y <= 2100);
+
+// Validates hour is in [0, 23]
+sp valid_hour(h) := (h >= 0) & (h <= 23);
+
+
+// =============================================================================
+// DOMAIN MEMBERSHIP VALIDATION
+// =============================================================================
+
+// Validates value belongs to discrete domain
+// Example: valid_in_domain(route, [r1:r3]) checks if route is r1, r2, or r3
+// Note: In ΔP, this is typically checked by type system via "x in Domain"
+// This predicate is for explicit validation in complex scenarios
+sp valid_member(x, min_val, max_val) := (x >= min_val) & (x <= max_val);
+
+
+// =============================================================================
+// COMPARISON VALIDATION
+// =============================================================================
+
+// Validates a < b (strict ordering)
+sp valid_ascending(a, b) := a < b;
+
+// Validates a <= b (non-strict ordering)
+sp valid_non_decreasing(a, b) := a <= b;
+
+// Validates three values are in ascending order
+sp valid_ascending3(a, b, c) := (a < b) & (b < c);
+
+// Validates threshold is between lower and upper bounds
+sp valid_threshold(threshold, lower, upper) := 
+    (threshold > lower) & (threshold < upper);
+
+
+// =============================================================================
+// PROBABILISTIC CONSISTENCY VALIDATION
+// =============================================================================
+
+// Validates probabilities sum to 1.0 (tolerance: 0.01)
+sp valid_prob_distribution2(p1, p2) := 
+    ((p1 + p2) >= 0.99) & ((p1 + p2) <= 1.01);
+
+sp valid_prob_distribution3(p1, p2, p3) := 
+    ((p1 + p2 + p3) >= 0.99) & ((p1 + p2 + p3) <= 1.01);
+
+// Validates conditional probability: P(A|B) = P(A and B) / P(B)
+// Checks if relationship holds within tolerance
+sp valid_conditional_prob(p_a_given_b, p_a_and_b, p_b) := 
+    (p_b > 0.0) & 
+    (abs(p_a_given_b - (p_a_and_b / p_b)) < 0.01);
+
+
+// =============================================================================
+// MATRIX/VECTOR VALIDATION
+// =============================================================================
+
+// Validates all elements are non-negative
+sp valid_all_non_negative2(x1, x2) := (x1 >= 0.0) & (x2 >= 0.0);
+
+sp valid_all_non_negative3(x1, x2, x3) := 
+    (x1 >= 0.0) & (x2 >= 0.0) & (x3 >= 0.0);
+
+// Validates all elements are in [0, 1]
+sp valid_all_normalized2(x1, x2) := 
+    valid_normalized_score(x1) & valid_normalized_score(x2);
+
+sp valid_all_normalized3(x1, x2, x3) := 
+    valid_normalized_score(x1) & 
+    valid_normalized_score(x2) & 
+    valid_normalized_score(x3);
+
+
+// =============================================================================
+// BUSINESS RULE VALIDATION
+// =============================================================================
+
+// Validates discount is reasonable (0-50%)
+sp valid_discount(d) := (d >= 0.0) & (d <= 0.5);
+
+// Validates price is positive
+sp valid_price(p) := p > 0.0;
+
+// Validates quantity is positive integer (checks if close to integer)
+sp valid_quantity(q) := (q > 0.0) & (abs(q - floor(q)) < 0.01);
+
+// Validates margin is in valid range (typically 0-100%)
+sp valid_margin(m) := (m >= 0.0) & (m <= 1.0);
+
+
+// =============================================================================
+// CONSISTENCY CHECKS
+// =============================================================================
+
+// Validates that baseline <= stressed value (for metrics that should degrade)
+sp valid_degradation(baseline, stressed) := stressed <= baseline;
+
+// Validates improvement (metric increases)
+sp valid_improvement(before, after) := after >= before;
+
+// Validates values are approximately equal (within tolerance)
+sp approximately_equal(a, b, tolerance) := abs(a - b) <= tolerance;
+
+
+// =============================================================================
+// COMPOSITE VALIDATION
+// =============================================================================
+
+// Validates a complete KPI score: in [0,1] and weights sum to 1
+sp valid_kpi_score(score, w1, w2, w3) := 
+    valid_normalized_score(score) & valid_weight_sum3(w1, w2, w3);
+
+// Validates a route classification system: thresholds properly ordered
+sp valid_classification_thresholds(lower, upper) := 
+    (lower >= 0.0) & (upper <= 1.0) & (lower < upper);
+
+
+// =============================================================================
+// ERROR DETECTION HELPERS
+// =============================================================================
+
+// Detects division by zero risk
+sp safe_denominator(d) := abs(d) > 0.0001;
+
+// Detects potential overflow risk (value too large)
+sp within_safe_range(x) := abs(x) < 1000000.0;
+
+// Detects NaN-like behavior (value equals itself)
+sp is_numeric(x) := x = x;
+
+
+// =============================================================================
+// END OF dplib/core/validation.dp
+// =============================================================================

@@ -1,0 +1,196 @@
+// =============================================================================
+// dplib/domains/logistics/network.dp
+// Generic logistics network patterns - NO hardcoded geography
+// =============================================================================
+//
+// Provides abstract patterns for:
+// - Node roles in logistics networks
+// - Route characteristics (capacity, reliability, risk)
+// - Performance indicators (efficiency, service quality, sustainability)
+// - Decision-making patterns (weighting schemes, classification)
+//
+// User programs declare concrete routes/nodes and use these patterns.
+//
+// =============================================================================
+
+
+// =============================================================================
+// NODE ROLES (abstract types)
+// =============================================================================
+
+origin_node := 1;           // Collection centers
+transit_hub := 2;           // Consolidation points
+border_crossing := 3;       // International handover
+distribution_center := 4;   // Final delivery nodes
+
+NodeRole := [origin_node:distribution_center];
+
+sp is_multi_role_node(role) := (role = transit_hub) | (role = border_crossing);
+sp has_consolidation(role) := role = transit_hub;
+
+
+// =============================================================================
+// ROUTE CHARACTERISTICS (generic levels)
+// =============================================================================
+
+low_capacity := 1;
+medium_capacity := 2;
+high_capacity := 3;
+
+CapacityLevel := [low_capacity:high_capacity];
+
+low_stability := 1;
+medium_stability := 2;
+high_stability := 3;
+
+StabilityLevel := [low_stability:high_stability];
+
+low_sensitivity := 1;
+medium_sensitivity := 2;
+high_sensitivity := 3;
+
+SensitivityLevel := [low_sensitivity:high_sensitivity];
+
+
+// =============================================================================
+// PERFORMANCE DIMENSIONS (KPI framework)
+// =============================================================================
+
+kpi_efficiency := 1;        // Transport Efficiency (TE)
+kpi_service := 2;           // Service Quality (SQ)
+kpi_sustainability := 3;    // Sustainability (SU)
+kpi_adaptability := 4;      // Adaptability (AD)
+kpi_resilience := 5;        // Strategic Resilience (SR)
+
+KPI := [kpi_efficiency:kpi_resilience];
+
+sp should_maximize(kpi) := 
+    (kpi = kpi_efficiency) | (kpi = kpi_service) | 
+    (kpi = kpi_adaptability) | (kpi = kpi_resilience);
+
+sp should_minimize(kpi) := kpi = kpi_sustainability;
+
+
+// =============================================================================
+// SCENARIO TYPES (disturbance categories)
+// =============================================================================
+
+scenario_baseline := 1;
+scenario_regulatory := 2;   // Policy/regulatory tightening
+scenario_environmental := 3; // Carbon/emissions constraints
+scenario_combined := 4;     // Multiple simultaneous disruptions
+scenario_economic := 5;     // Exchange rate/cost volatility
+scenario_operational := 6;  // Delays/congestion
+
+ScenarioType := [scenario_baseline:scenario_operational];
+
+
+// =============================================================================
+// WEIGHTING SCHEMES (multi-criteria decision templates)
+// =============================================================================
+
+weight_balanced := 1;       // Equal priority across KPIs
+weight_efficiency_focus := 2; // Optimize for speed/cost
+weight_service_focus := 3;  // Optimize for quality/reliability
+weight_sustainability_focus := 4; // Optimize for environmental impact
+weight_resilience_focus := 5; // Optimize for disruption resistance
+
+WeightScheme := [weight_balanced:weight_resilience_focus];
+
+
+// =============================================================================
+// ROUTE CLASSIFICATION (priority tiers)
+// =============================================================================
+
+priority_preferred := 1;    // High-performance routes
+priority_alternative := 2;  // Acceptable backup routes
+priority_restricted := 3;   // Use only when necessary
+
+Priority := [priority_preferred:priority_restricted];
+
+// Generic classification thresholds (user can override)
+default_upper_threshold := 0.6;
+default_lower_threshold := 0.4;
+
+sp classify_by_score(score, upper, lower) := 
+    (score >= upper & priority_preferred) |
+    (score > lower & score < upper & priority_alternative) |
+    (score <= lower & priority_restricted);
+
+
+// =============================================================================
+// TRANSPORT MODES
+// =============================================================================
+
+mode_road := 1;
+mode_rail := 2;
+mode_multimodal := 3;
+
+TransportMode := [mode_road:mode_multimodal];
+
+
+// =============================================================================
+// TEMPORAL PATTERNS
+// =============================================================================
+
+Month := [1:12];
+
+sp is_winter_month(m) := (m = 12) | (m = 1) | (m = 2);
+sp is_spring_month(m) := (m >= 3) & (m <= 5);
+sp is_summer_month(m) := (m >= 6) & (m <= 8);
+sp is_autumn_month(m) := (m >= 9) & (m <= 11);
+
+
+// =============================================================================
+// WEATHER CONDITIONS (generic)
+// =============================================================================
+
+weather_clear := 1;
+weather_rain := 2;
+weather_snow := 3;
+weather_extreme := 4;
+
+Weather := [weather_clear:weather_extreme];
+
+sp weather_disrupts_transport(w) := (w = weather_snow) | (w = weather_extreme);
+
+
+// =============================================================================
+// VALIDATION HELPERS (generic predicates)
+// =============================================================================
+
+sp valid_probability(p) := (p >= 0.0) & (p <= 1.0);
+sp valid_normalized_score(s) := (s >= 0.0) & (s <= 1.0);
+
+sp is_high_risk(risk_level) := risk_level = high_sensitivity;
+sp is_backbone_capacity(cap_level) := cap_level = high_capacity;
+
+
+// =============================================================================
+// COMPOSITE SCORE CALCULATION (pattern)
+// =============================================================================
+// User provides: prob_efficiency(route), prob_service(route), prob_sustainability(route)
+// User provides: weight_eff, weight_svc, weight_sus
+
+sp generic_composite_score(p_eff, p_svc, p_sus, w_eff, w_svc, w_sus) :=
+    (p_eff * w_eff) + (p_svc * w_svc) + (p_sus * w_sus);
+
+
+// =============================================================================
+// DECISION PATTERNS
+// =============================================================================
+
+sp is_likely(p) := p >= 0.5;
+sp is_highly_likely(p) := p >= 0.8;
+sp more_likely_than(p_a, p_b) := p_a > p_b;
+
+sp performance_drops_under_stress(baseline_score, stress_score) := 
+    stress_score < baseline_score;
+
+sp has_redundancy_benefit(normal_delta, stress_delta) := 
+    (normal_delta > 0.0) & (stress_delta < 0.0);
+
+
+// =============================================================================
+// END OF dplib/domains/logistics/network.dp
+// =============================================================================
