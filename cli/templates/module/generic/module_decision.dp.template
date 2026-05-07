@@ -1,0 +1,79 @@
+// =============================================================================
+// {{module_name}}/decision.dp
+// Decision mode analysis (probability calculation)
+// =============================================================================
+
+dpSem decision;
+
+// =============================================================================
+// IMPORTS
+// =============================================================================
+
+// Import configuration
+// @import config;
+
+// For now, manually include essentials:
+baseline := 1;
+stressed := 2;
+Scenario := [baseline:stressed];
+
+Month := [1:12];
+
+
+// =============================================================================
+// DYNAMIC PREDICATES
+// =============================================================================
+
+// Define your probabilistic queries here
+// These will be populated from the HDF5 database
+
+dp outcome_succeeds(scenario, month) : 
+    scenario in Scenario & month in Month;
+
+
+// =============================================================================
+// PROBABILITY AGGREGATION
+// =============================================================================
+
+// Calculate average probability across time periods
+sp avg_success_probability(scenario) := (
+    outcome_succeeds(scenario, 1) +
+    outcome_succeeds(scenario, 2) +
+    outcome_succeeds(scenario, 3) +
+    outcome_succeeds(scenario, 4) +
+    outcome_succeeds(scenario, 5) +
+    outcome_succeeds(scenario, 6) +
+    outcome_succeeds(scenario, 7) +
+    outcome_succeeds(scenario, 8) +
+    outcome_succeeds(scenario, 9) +
+    outcome_succeeds(scenario, 10) +
+    outcome_succeeds(scenario, 11) +
+    outcome_succeeds(scenario, 12)
+) / 12.0;
+
+
+// =============================================================================
+// ANALYSIS
+// =============================================================================
+
+output("=== {{module_name}} Decision Analysis ===");
+output("");
+
+baseline_prob := avg_success_probability(baseline);
+stressed_prob := avg_success_probability(stressed);
+
+output("Baseline scenario: P(success) = ", baseline_prob);
+output("Stressed scenario: P(success) = ", stressed_prob);
+output("");
+
+if (baseline_prob > stressed_prob) then {
+    output("Performance degrades under stress.");
+    degradation := baseline_prob - stressed_prob;
+    output("Degradation: ", degradation);
+}
+
+output("");
+output("=== CSV Output ===");
+output("scenario,probability");
+output("baseline,", baseline_prob);
+output("stressed,", stressed_prob);

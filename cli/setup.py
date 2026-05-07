@@ -26,14 +26,13 @@ setup(
     install_requires=[
         "ply>=3.11",
         "h5py>=3.8.0",
-        "numpy>=1.24.0,<2.0",
+        "numpy>=1.24.0",
         "tomli>=2.0.0; python_version<'3.11'",  # tomllib is built-in for 3.11+
-        "questionary>=2.0.0",  # For interactive CLI wizard
     ],
     entry_points={
         "console_scripts": [
-            "dp=cli.package_manager:main",  # Package manager (install, list, etc.)
-            "deltap=interpreter.delta_interpreter:main",  # Interpreter (run .dp files)
+            "dp=cli:main",  # Creates 'dp' command
+            "deltap=interpreter.__main__:main",  # Alternative: 'deltap' command for interpreter
         ],
     },
     classifiers=[
@@ -45,8 +44,5 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     include_package_data=True,
-    package_data={
-        "cli": ["templates/**/*.template"],  # Include template files
-    },
     zip_safe=False,
 )
