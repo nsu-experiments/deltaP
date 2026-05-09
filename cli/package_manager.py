@@ -16,6 +16,7 @@ from .list_command import cmd_list
 from .run_command import cmd_run
 from .populate_command import cmd_populate
 from .sync_command import cmd_sync
+from .ink_command import cmd_ink 
 
 
 def cmd_publish(args):
@@ -57,7 +58,7 @@ def main():
     
     # dp run
     run_parser = subparsers.add_parser("run", help="Run a ΔP program")
-    run_parser.add_argument("target", help="Module name or .dp file path")
+    run_parser.add_argument("target", nargs='+', help="Mode and module name, or .dp file path")
     run_parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     run_parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     run_parser.add_argument("-q", "--quiet", action="store_true", help="Suppress warnings")
@@ -73,6 +74,13 @@ def main():
     sync_parser = subparsers.add_parser("sync", help="Sync CSV/JSON data to HDF5 database")
     sync_parser.add_argument("module", nargs='?', help="Module name (omit to sync all)")
     sync_parser.set_defaults(func=cmd_sync)
+
+    # dp ink
+    ink_parser = subparsers.add_parser("ink", help="Generate visualizations from simulation results")
+    ink_parser.add_argument("module_name", help="Name of the module to visualize")
+    ink_parser.add_argument("--eda", action="store_true", help="Enable full EDA report")
+    ink_parser.add_argument("--output", metavar="DIR", help="Output directory for plots (default: results/plots)")
+    ink_parser.set_defaults(func=cmd_ink)
     
     # dp publish
     publish_parser = subparsers.add_parser("publish", help="Publish package (not implemented)")

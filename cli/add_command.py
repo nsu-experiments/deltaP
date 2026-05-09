@@ -111,6 +111,7 @@ def cmd_add(args):
             ("module_decision.dp.template", "decision.dp"),
             ("module_simulation.dp.template", "simulation.dp"),
             ("module_populate.dp.template", "populate.dp"),
+            ("module_visualize.toml.template", "visualize.toml"),
         ]
     else:
         # New naming pattern
@@ -119,6 +120,8 @@ def cmd_add(args):
             ("decision.dp.template", "decision.dp"),
             ("simulation.dp.template", "simulation.dp"),
             ("populate.dp.template", "populate.dp"),
+            ("visualize.toml.template", "visualize.toml"),
+
         ]
     
     created_files = []

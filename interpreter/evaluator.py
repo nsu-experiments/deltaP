@@ -451,12 +451,12 @@ class Interpreter:
 
     def run_program(self, prog: Program):
         # Initialize CSV exporter based on mode
-        # for stmt in prog.statements:
-        #     if isinstance(stmt, DPSemDecl):
-        #         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        #         self.csv_exporter = CSVExporter(f"{stmt.mode}_results_{timestamp}")
-        #         break
-        self.csv_exporter = None 
+        for stmt in prog.statements:
+            if isinstance(stmt, DPSemDecl):
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                self.csv_exporter = CSVExporter(f"{stmt.mode}_results_{timestamp}")
+                break
+        # self.csv_exporter = None 
 
         # Execute program
         for stmt in prog.statements:
