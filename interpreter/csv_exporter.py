@@ -7,20 +7,22 @@ CSV exporter for simulation and decision results.
 from datetime import datetime
 from typing import List, Dict, Any
 import pandas as pd
+import os
 
 
 class CSVExporter:
     """Exports interpreter results to timestamped CSV files"""
     
     def __init__(self, base_name: str):
-        import os
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # Create results directory if it doesn't exist
-        os.makedirs("results", exist_ok=True)
+        # Check for custom results directory from environment
+        results_dir = os.environ.get('DELTAP_RESULTS_DIR', 'results')
         
-        self.filename = f"results/{base_name}_{timestamp}.csv"
-
+        # Create results directory if it doesn't exist
+        os.makedirs(results_dir, exist_ok=True)
+        
+        self.filename = f"{results_dir}/{base_name}_{timestamp}.csv"
         self.rows: List[Dict[str, Any]] = []
 
     def add_row(self, data: Dict[str, Any]) -> None:
