@@ -93,8 +93,8 @@ description = "{description}"
         (project_path / "deltap.toml").write_text(toml_content)
     
     # Create directory structure
-    (project_path / "data").mkdir(exist_ok=True)
-    (project_path / "results").mkdir(exist_ok=True)
+    (project_path / "src" / "data").mkdir(parents=True, exist_ok=True)
+    (project_path / "src" / "results").mkdir(parents=True, exist_ok=True)
     (project_path / "src").mkdir(exist_ok=True)
 
     # Copy examples if requested                             

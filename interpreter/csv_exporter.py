@@ -17,7 +17,7 @@ class CSVExporter:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         # Check for custom results directory from environment
-        results_dir = os.environ.get('DELTAP_RESULTS_DIR', 'results')
+        results_dir = os.environ.get('DELTAP_RESULTS_DIR', 'src/results')  # CHANGED
         
         # Create results directory if it doesn't exist
         os.makedirs(results_dir, exist_ok=True)

@@ -1,0 +1,42 @@
+// =============================================================================
+// default/populate.dp
+// Generate synthetic test data for this module
+// =============================================================================
+//
+// This script generates synthetic data for testing and development.
+// Run with: dp populate default
+//
+// Output: data/_synthetic/default.csv
+//
+// =============================================================================
+
+dpSem simulation;
+
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+
+num_samples := 100;
+
+
+// =============================================================================
+// DATA GENERATION
+// =============================================================================
+
+output("id,scenario,month,value,success");
+
+for i in [1:num_samples] do {
+    // Generate sample data
+    scenario := ((i - 1) % 2) + 1;  // Alternates 1, 2
+    month := ((i - 1) % 12) + 1;    // Cycles through 1-12
+    
+    // Generate synthetic values
+    // Modify this logic for your specific needs
+    value := 50.0 + (i * 0.5);
+    
+    // Simulate success probability (0.7 baseline, 0.5 stressed)
+    success_prob := (scenario = 1 & 0.7) | (scenario = 2 & 0.5);
+    success := (i * 0.01) < success_prob;  // Deterministic for reproducibility
+    
+    output(i, ",", scenario, ",", month, ",", value, ",", success);
+}
