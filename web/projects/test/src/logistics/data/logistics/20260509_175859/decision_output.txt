@@ -1,0 +1,28 @@
+=== logistics Decision Analysis ===
+
+Scenario: Baseline
+
+Route 1:
+  Efficiency:      0.5
+  Service:         0.5
+  Sustainability:  0.5
+  Composite:       0.125
+
+Route 2:
+  Efficiency:      0.5
+  Service:         0.5
+  Sustainability:  0.5
+  Composite:       0.125
+
+Route 3:
+  Efficiency:      0.5
+  Service:         0.5
+  Sustainability:  0.5
+  Composite:       0.125
+
+
+=== CSV Output ===
+route,efficiency,service,sustainability,composite
+1, 0.5 , 0.5 , 0.5 , 0.125
+2, 0.5 , 0.5 , 0.5 , 0.125
+3, 0.5 , 0.5 , 0.5 , 0.125

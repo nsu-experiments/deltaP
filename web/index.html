@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ΔP Playground</title>
+    
+    <!-- CDN Dependencies -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- File Tree Panel -->
+        <aside id="file-tree">
+            <h3>Project Files</h3>
+            <div id="tree-content"></div>
+        </aside>
+    <div class="resize-handle" data-direction="file-tree"></div>
+
+    <!-- Code Editor Panel -->
+        <main id="editor-panel">
+            <div class="editor-header">
+                <span id="current-file">No file selected</span>
+                <div class="editor-controls">
+                    <button id="zoom-out">-</button>
+                    <span id="zoom-level">100%</span>
+                    <button id="zoom-in">+</button>
+                    <button id="run-btn" disabled>Run</button>
+                </div>
+            </div>
+            <div id="code-editor"></div>
+            <div id="output-console"></div>
+        </main>
+        <div class="resize-handle" data-direction="visualizer"></div>
+
+        <!-- Visualizer Panel -->
+        <section id="visualizer">
+            <div class="viz-tabs">
+                <button class="tab active" data-tab="terminal">Terminal</button>
+                <button class="tab" data-tab="charts">Charts</button>
+            </div>
+            <div id="viz-content">
+                <div id="terminal-view" class="tab-content active">
+                    <div id="terminal-output"></div>
+                    <div id="terminal-input-container">
+                        <span class="prompt">Δp&gt;</span>
+                        <input type="text" id="terminal-input" placeholder="Enter dp command...">
+                    </div>
+                </div>
+                <div id="charts-view" class="tab-content"></div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="lib/dp-parser.js"></script>
+    <script type="module" src="lib/chart.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

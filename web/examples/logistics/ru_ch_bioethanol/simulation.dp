@@ -1,0 +1,91 @@
+// =============================================================================
+// simulation.dp
+// Russian-Chinese Bioethanol Supply Chain Simulation
+// =============================================================================
+//
+// Samples monthly outcomes for bioethanol transport routes (simulation mode).
+//
+// Architecture:
+//   - Imports generic patterns from dplib
+//   - Imports concrete config
+//   - Samples dynamic predicates for each month
+//
+// =============================================================================
+
+dpSem simulation;
+
+// =============================================================================
+// IMPORTS
+// =============================================================================
+
+// Generic patterns (when preprocessor available):
+// @import dplib.domains.logistics.network;
+
+// Concrete configuration
+// @import config;
+
+// For now, manually include config:
+r1 := 1; r2 := 2; r3 := 3;
+Route := [r1:r3];
+
+baseline := 1;
+border_tight := 3;
+Scenario := [baseline:border_tight];
+
+Month := [1:12];
+
+
+// =============================================================================
+// DYNAMIC PREDICATES (Sampled each run)
+// =============================================================================
+
+dp meets_efficiency(route, scenario, month) : 
+    route in Route & scenario in Scenario & month in Month;
+
+dp meets_service_quality(route, scenario, month) : 
+    route in Route & scenario in Scenario & month in Month;
+
+dp meets_carbon_limit(route, scenario, month) : 
+    route in Route & scenario in Scenario & month in Month;
+
+
+// =============================================================================
+// COMPOSITE SUCCESS (All KPIs must pass)
+// =============================================================================
+
+sp composite_success(route, scenario, month) := 
+    meets_efficiency(route, scenario, month) & 
+    meets_service_quality(route, scenario, month) & 
+    meets_carbon_limit(route, scenario, month);
+
+
+// =============================================================================
+// SIMULATION: Sample 12 months for each route
+// =============================================================================
+
+current_scenario := baseline;
+
+output("iteration,route,scenario,month,meets_efficiency,meets_service,meets_carbon,composite_success");
+
+for month in Month do {
+    // R1: Kazakhstan
+    r1_eff := meets_efficiency(r1, current_scenario, month);
+    r1_svc := meets_service_quality(r1, current_scenario, month);
+    r1_carb := meets_carbon_limit(r1, current_scenario, month);
+    r1_result := composite_success(r1, current_scenario, month);
+    output("1,Kazakhstan,",current_scenario,",",month,",",r1_eff,",",r1_svc,",",r1_carb,",",r1_result);
+    
+    // R2: Kyrgyzstan
+    r2_eff := meets_efficiency(r2, current_scenario, month);
+    r2_svc := meets_service_quality(r2, current_scenario, month);
+    r2_carb := meets_carbon_limit(r2, current_scenario, month);
+    r2_result := composite_success(r2, current_scenario, month);
+    output("2,Kyrgyzstan,",current_scenario,",",month,",",r2_eff,",",r2_svc,",",r2_carb,",",r2_result);
+    
+    // R3: Hybrid
+    r3_eff := meets_efficiency(r3, current_scenario, month);
+    r3_svc := meets_service_quality(r3, current_scenario, month);
+    r3_carb := meets_carbon_limit(r3, current_scenario, month);
+    r3_result := composite_success(r3, current_scenario, month);
+    output("3,Hybrid,",current_scenario,",",month,",",r3_eff,",",r3_svc,",",r3_carb,",",r3_result);
+}
