@@ -33,7 +33,7 @@ def load_visualize_config(module_path: Path) -> Dict[str, Any]:
 
 def find_latest_results(module_name: str, result_type: str = 'stats') -> Optional[Path]:
     """Find the most recent results CSV file."""
-    results_dir = Path('results') / module_name
+    results_dir = Path('src') / 'results' / module_name  # CHANGED
     
     if not results_dir.exists():
         return None
@@ -196,7 +196,7 @@ def cmd_ink(args):
         config.setdefault('charts', {}).setdefault('eda', {})['enabled'] = True
     
     # Find latest results directory
-    results_base = Path('results') / module_name
+    results_base = Path('src') / module_name / 'data' / module_name  
     latest_link = results_base / 'latest'
     
     if not latest_link.exists():

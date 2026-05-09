@@ -60,14 +60,16 @@ def cmd_run(args):
         env['DELTAP_QUIET'] = '1'
 
     if save_output:
-        results_dir = Path('results') / module / timestamp
+        # Use env var if already set (from web server), otherwise default to 'results'
+        base_results = os.environ.get('DELTAP_RESULTS_DIR', 'results')
+        results_dir = Path(base_results) / module / timestamp
         results_dir.mkdir(parents=True, exist_ok=True)
         
         # Tell interpreter where to save CSVs
         env['DELTAP_RESULTS_DIR'] = str(results_dir)
         
         # Create/update 'latest' symlink
-        latest_link = Path('results') / module / 'latest'
+        latest_link = Path(base_results) / module / 'latest'
         if latest_link.exists() or latest_link.is_symlink():
             latest_link.unlink()
         latest_link.symlink_to(timestamp, target_is_directory=True)
