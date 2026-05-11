@@ -1,0 +1,23 @@
+=== Logistics Decision Analysis (Supply Chain Data) ===
+
+Performance by Weather, Traffic, and Risk Level
+
+Low Risk Conditions:
+
+Clear Weather + Light Traffic:
+  On-Time Delivery:  0.125
+  Fuel Efficiency:   0.6666666666666666
+  Cargo Quality:     0.041666666666666664
+  Composite:         0.003472222222222222
+
+Stormy Weather + Heavy Traffic:
+  On-Time Delivery:  0.16666666666666666
+  Fuel Efficiency:   0.6666666666666666
+  Cargo Quality:     0.4166666666666667
+  Composite:         0.046296296296296294
+
+
+=== CSV Output ===
+weather,traffic,risk,on_time,fuel,cargo,composite
+1 , 1 , 1 , 0.125 , 0.6666666666666666 , 0.041666666666666664 , 0.003472222222222222
+3 , 3 , 3 , 0.16666666666666666 , 0.6666666666666666 , 0.4166666666666667 , 0.046296296296296294

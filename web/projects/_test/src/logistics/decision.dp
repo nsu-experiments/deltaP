@@ -1,0 +1,192 @@
+// =============================================================================
+// logistics/decision.dp
+// Supply Chain Logistics Decision Analysis
+// =============================================================================
+//
+// Analyze delivery performance, risk levels, and operational efficiency
+// from real-time logistics data.
+//
+// =============================================================================
+
+dpSem decision;
+
+// =============================================================================
+// IMPORTS
+// =============================================================================
+
+// Risk classification
+low_risk := 1;
+moderate_risk := 2;
+high_risk := 3;
+RiskLevel := [low_risk:high_risk];
+
+// Weather conditions
+clear := 1;
+cloudy := 2;
+stormy := 3;
+Weather := [clear:stormy];
+
+// Traffic levels
+light := 1;
+moderate := 2;
+heavy := 3;
+Traffic := [light:heavy];
+
+Hour := [0:23];
+
+// =============================================================================
+// DYNAMIC PREDICATES
+// =============================================================================
+
+// Predicates will be populated from supply chain CSV
+// Arguments: (hour, weather, traffic, risk_level)
+dp meets_on_time_delivery(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
+
+dp meets_fuel_efficiency(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
+
+dp meets_cargo_quality(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
+
+// =============================================================================
+// PROBABILITY AGGREGATION
+// =============================================================================
+
+// Average across all hours for given conditions
+sp avg_on_time(weather, traffic, risk) := (
+    meets_on_time_delivery(0, weather, traffic, risk) +
+    meets_on_time_delivery(1, weather, traffic, risk) +
+    meets_on_time_delivery(2, weather, traffic, risk) +
+    meets_on_time_delivery(3, weather, traffic, risk) +
+    meets_on_time_delivery(4, weather, traffic, risk) +
+    meets_on_time_delivery(5, weather, traffic, risk) +
+    meets_on_time_delivery(6, weather, traffic, risk) +
+    meets_on_time_delivery(7, weather, traffic, risk) +
+    meets_on_time_delivery(8, weather, traffic, risk) +
+    meets_on_time_delivery(9, weather, traffic, risk) +
+    meets_on_time_delivery(10, weather, traffic, risk) +
+    meets_on_time_delivery(11, weather, traffic, risk) +
+    meets_on_time_delivery(12, weather, traffic, risk) +
+    meets_on_time_delivery(13, weather, traffic, risk) +
+    meets_on_time_delivery(14, weather, traffic, risk) +
+    meets_on_time_delivery(15, weather, traffic, risk) +
+    meets_on_time_delivery(16, weather, traffic, risk) +
+    meets_on_time_delivery(17, weather, traffic, risk) +
+    meets_on_time_delivery(18, weather, traffic, risk) +
+    meets_on_time_delivery(19, weather, traffic, risk) +
+    meets_on_time_delivery(20, weather, traffic, risk) +
+    meets_on_time_delivery(21, weather, traffic, risk) +
+    meets_on_time_delivery(22, weather, traffic, risk) +
+    meets_on_time_delivery(23, weather, traffic, risk)
+) / 24.0;
+
+sp avg_fuel(weather, traffic, risk) := (
+    meets_fuel_efficiency(0, weather, traffic, risk) +
+    meets_fuel_efficiency(1, weather, traffic, risk) +
+    meets_fuel_efficiency(2, weather, traffic, risk) +
+    meets_fuel_efficiency(3, weather, traffic, risk) +
+    meets_fuel_efficiency(4, weather, traffic, risk) +
+    meets_fuel_efficiency(5, weather, traffic, risk) +
+    meets_fuel_efficiency(6, weather, traffic, risk) +
+    meets_fuel_efficiency(7, weather, traffic, risk) +
+    meets_fuel_efficiency(8, weather, traffic, risk) +
+    meets_fuel_efficiency(9, weather, traffic, risk) +
+    meets_fuel_efficiency(10, weather, traffic, risk) +
+    meets_fuel_efficiency(11, weather, traffic, risk) +
+    meets_fuel_efficiency(12, weather, traffic, risk) +
+    meets_fuel_efficiency(13, weather, traffic, risk) +
+    meets_fuel_efficiency(14, weather, traffic, risk) +
+    meets_fuel_efficiency(15, weather, traffic, risk) +
+    meets_fuel_efficiency(16, weather, traffic, risk) +
+    meets_fuel_efficiency(17, weather, traffic, risk) +
+    meets_fuel_efficiency(18, weather, traffic, risk) +
+    meets_fuel_efficiency(19, weather, traffic, risk) +
+    meets_fuel_efficiency(20, weather, traffic, risk) +
+    meets_fuel_efficiency(21, weather, traffic, risk) +
+    meets_fuel_efficiency(22, weather, traffic, risk) +
+    meets_fuel_efficiency(23, weather, traffic, risk)
+) / 24.0;
+
+sp avg_cargo(weather, traffic, risk) := (
+    meets_cargo_quality(0, weather, traffic, risk) +
+    meets_cargo_quality(1, weather, traffic, risk) +
+    meets_cargo_quality(2, weather, traffic, risk) +
+    meets_cargo_quality(3, weather, traffic, risk) +
+    meets_cargo_quality(4, weather, traffic, risk) +
+    meets_cargo_quality(5, weather, traffic, risk) +
+    meets_cargo_quality(6, weather, traffic, risk) +
+    meets_cargo_quality(7, weather, traffic, risk) +
+    meets_cargo_quality(8, weather, traffic, risk) +
+    meets_cargo_quality(9, weather, traffic, risk) +
+    meets_cargo_quality(10, weather, traffic, risk) +
+    meets_cargo_quality(11, weather, traffic, risk) +
+    meets_cargo_quality(12, weather, traffic, risk) +
+    meets_cargo_quality(13, weather, traffic, risk) +
+    meets_cargo_quality(14, weather, traffic, risk) +
+    meets_cargo_quality(15, weather, traffic, risk) +
+    meets_cargo_quality(16, weather, traffic, risk) +
+    meets_cargo_quality(17, weather, traffic, risk) +
+    meets_cargo_quality(18, weather, traffic, risk) +
+    meets_cargo_quality(19, weather, traffic, risk) +
+    meets_cargo_quality(20, weather, traffic, risk) +
+    meets_cargo_quality(21, weather, traffic, risk) +
+    meets_cargo_quality(22, weather, traffic, risk) +
+    meets_cargo_quality(23, weather, traffic, risk)
+) / 24.0;
+
+// Composite performance score
+sp composite_score(weather, traffic, risk) := 
+    avg_on_time(weather, traffic, risk) * 
+    avg_fuel(weather, traffic, risk) * 
+    avg_cargo(weather, traffic, risk);
+
+// =============================================================================
+// ANALYSIS
+// =============================================================================
+
+output("=== Logistics Decision Analysis (Supply Chain Data) ===");
+output("");
+output("Performance by Weather, Traffic, and Risk Level");
+output("");
+
+// Low Risk scenarios
+output("Low Risk Conditions:");
+output("");
+
+// Clear weather, light traffic, low risk
+clear_light_low_ot := avg_on_time(clear, light, low_risk);
+clear_light_low_fuel := avg_fuel(clear, light, low_risk);
+clear_light_low_cargo := avg_cargo(clear, light, low_risk);
+clear_light_low_score := composite_score(clear, light, low_risk);
+
+output("Clear Weather + Light Traffic:");
+output("  On-Time Delivery: ", clear_light_low_ot);
+output("  Fuel Efficiency:  ", clear_light_low_fuel);
+output("  Cargo Quality:    ", clear_light_low_cargo);
+output("  Composite:        ", clear_light_low_score);
+output("");
+
+// Stormy weather, heavy traffic, high risk
+stormy_heavy_high_ot := avg_on_time(stormy, heavy, high_risk);
+stormy_heavy_high_fuel := avg_fuel(stormy, heavy, high_risk);
+stormy_heavy_high_cargo := avg_cargo(stormy, heavy, high_risk);
+stormy_heavy_high_score := composite_score(stormy, heavy, high_risk);
+
+output("Stormy Weather + Heavy Traffic:");
+output("  On-Time Delivery: ", stormy_heavy_high_ot);
+output("  Fuel Efficiency:  ", stormy_heavy_high_fuel);
+output("  Cargo Quality:    ", stormy_heavy_high_cargo);
+output("  Composite:        ", stormy_heavy_high_score);
+output("");
+
+// Recommendation
+if (clear_light_low_score > stormy_heavy_high_score) then {
+    output("Recommendation: Schedule deliveries during clear weather and light traffic");
+}
+
+output("");
+output("=== CSV Output ===");
+output("weather,traffic,risk,on_time,fuel,cargo,composite");
+output(clear, ",", light, ",", low_risk, ",", clear_light_low_ot, ",", clear_light_low_fuel, ",", clear_light_low_cargo, ",", clear_light_low_score);
+output(stormy, ",", heavy, ",", high_risk, ",", stormy_heavy_high_ot, ",", stormy_heavy_high_fuel, ",", stormy_heavy_high_cargo, ",", stormy_heavy_high_score);

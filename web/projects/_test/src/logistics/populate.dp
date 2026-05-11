@@ -1,0 +1,80 @@
+// =============================================================================
+// logistics/populate.dp
+// Generate synthetic supply chain logistics data
+// =============================================================================
+//
+// This script generates synthetic performance data for delivery operations.
+// Run with: dp populate logistics
+//
+// Output: data/logistics/_synthetic/logistics.csv
+//
+// Based on hourly delivery performance under varying weather, traffic, and risk conditions.
+//
+// =============================================================================
+
+dpSem simulation;
+
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+
+// Weather conditions
+clear := 1;
+cloudy := 2;
+stormy := 3;
+
+// Traffic levels
+light := 1;
+moderate := 2;
+heavy := 3;
+
+// Risk levels
+low_risk := 1;
+moderate_risk := 2;
+high_risk := 3;
+
+// =============================================================================
+// DATA GENERATION
+// =============================================================================
+
+output("hour,weather,traffic,risk,on_time,fuel,cargo");
+
+// Scenario 1: Optimal conditions (clear weather, light traffic, low risk)
+for hour in [0:23] do {
+    on_time := (hour >= 6 & hour <= 20) & 1.0 | 0.0;  // 62.5% (15/24 hours)
+    fuel := (hour >= 8 & hour <= 18) & 1.0 | 0.0;     // 45.8% (11/24 hours)
+    cargo := (hour >= 7 & hour <= 19) & 1.0 | 0.0;    // 54.2% (13/24 hours)
+    output(hour, ",", clear, ",", light, ",", low_risk, ",", on_time, ",", fuel, ",", cargo);
+}
+
+// Scenario 2: Moderate conditions (cloudy weather, moderate traffic, moderate risk)
+for hour in [0:23] do {
+    on_time := (hour >= 7 & hour <= 18) & 1.0 | 0.0;  // 50% (12/24 hours)
+    fuel := (hour >= 9 & hour <= 17) & 1.0 | 0.0;     // 37.5% (9/24 hours)
+    cargo := (hour >= 8 & hour <= 18) & 1.0 | 0.0;    // 45.8% (11/24 hours)
+    output(hour, ",", cloudy, ",", moderate, ",", moderate_risk, ",", on_time, ",", fuel, ",", cargo);
+}
+
+// Scenario 3: Challenging conditions (stormy weather, heavy traffic, high risk)
+for hour in [0:23] do {
+    on_time := (hour >= 9 & hour <= 16) & 1.0 | 0.0;  // 33.3% (8/24 hours)
+    fuel := (hour >= 10 & hour <= 15) & 1.0 | 0.0;    // 25% (6/24 hours)
+    cargo := (hour >= 9 & hour <= 16) & 1.0 | 0.0;    // 33.3% (8/24 hours)
+    output(hour, ",", stormy, ",", heavy, ",", high_risk, ",", on_time, ",", fuel, ",", cargo);
+}
+
+// Scenario 4: Mixed conditions - clear weather but heavy traffic (urban rush hour effect)
+for hour in [0:23] do {
+    on_time := ((hour >= 0 & hour <= 6) | (hour >= 20 & hour <= 23)) & 1.0 | 0.0;  // 41.7% (10/24 hours - avoid rush)
+    fuel := (hour >= 1 & hour <= 5) & 1.0 | 0.0;      // 20.8% (5/24 hours)
+    cargo := ((hour >= 0 & hour <= 7) | (hour >= 21 & hour <= 23)) & 1.0 | 0.0;    // 45.8% (11/24 hours)
+    output(hour, ",", clear, ",", heavy, ",", moderate_risk, ",", on_time, ",", fuel, ",", cargo);
+}
+
+// Scenario 5: Stormy weather but light traffic (weekend/holiday delivery window)
+for hour in [0:23] do {
+    on_time := (hour >= 8 & hour <= 17) & 1.0 | 0.0;  // 41.7% (10/24 hours)
+    fuel := (hour >= 9 & hour <= 16) & 1.0 | 0.0;     // 33.3% (8/24 hours)
+    cargo := (hour >= 8 & hour <= 16) & 1.0 | 0.0;    // 37.5% (9/24 hours)
+    output(hour, ",", stormy, ",", light, ",", low_risk, ",", on_time, ",", fuel, ",", cargo);
+}

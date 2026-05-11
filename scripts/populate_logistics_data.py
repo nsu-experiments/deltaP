@@ -10,7 +10,7 @@ sys.path.insert(0, 'interpreter')
 
 from interpreter.hdf5_manager import HDF5Manager
 
-def populate_data(db_file='delta_db.h5'):
+def populate_data(db_file='delta_db_synthetic.h5'):
     """Populate database with training data for logistics predicates"""
     
     with HDF5Manager(db_file) as db:
@@ -149,5 +149,5 @@ def populate_data(db_file='delta_db.h5'):
         print("=" * 60)
 
 if __name__ == '__main__':
-    db_file = sys.argv[1] if len(sys.argv) > 1 else 'delta_db.h5'
+    db_file = sys.argv[1] if len(sys.argv) > 1 else 'delta_db_synthetic.h5'
     populate_data(db_file)

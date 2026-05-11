@@ -1,0 +1,68 @@
+// =============================================================================
+// logistics/simulation.dp
+// Supply Chain Logistics Simulation
+// =============================================================================
+
+dpSem simulation;
+
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+
+clear := 1;
+cloudy := 2;
+stormy := 3;
+Weather := [clear:stormy];
+
+light := 1;
+moderate := 2;
+heavy := 3;
+Traffic := [light:heavy];
+
+low_risk := 1;
+moderate_risk := 2;
+high_risk := 3;
+RiskLevel := [low_risk:high_risk];
+
+Hour := [0:23];
+
+// =============================================================================
+// DYNAMIC PREDICATES
+// =============================================================================
+
+dp meets_on_time_delivery(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
+
+dp meets_fuel_efficiency(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
+
+dp meets_cargo_quality(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
+
+// =============================================================================
+// COMPOSITE SUCCESS
+// =============================================================================
+
+sp composite_success(hour, weather, traffic, risk_level) := 
+    meets_on_time_delivery(hour, weather, traffic, risk_level) & 
+    meets_fuel_efficiency(hour, weather, traffic, risk_level) & 
+    meets_cargo_quality(hour, weather, traffic, risk_level);
+
+// =============================================================================
+// SIMULATION
+// =============================================================================
+
+current_weather := clear;
+current_traffic := light;
+current_risk := low_risk;
+
+output("hour,weather,traffic,risk,on_time,fuel,cargo,composite");
+
+for hour in Hour do {
+    ot := meets_on_time_delivery(hour, current_weather, current_traffic, current_risk);
+    fuel := meets_fuel_efficiency(hour, current_weather, current_traffic, current_risk);
+    cargo := meets_cargo_quality(hour, current_weather, current_traffic, current_risk);
+    result := composite_success(hour, current_weather, current_traffic, current_risk);
+    
+    output(hour, ",", current_weather, ",", current_traffic, ",", current_risk, ",", ot, ",", fuel, ",", cargo, ",", result);
+}

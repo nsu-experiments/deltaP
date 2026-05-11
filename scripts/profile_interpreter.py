@@ -49,7 +49,7 @@ if __name__ == '__main__':
     print("="*70)
     print("PROFILING: examples/logistics_decision.dp")
     print("="*70)
-    report = profile_program('examples/logistics_decision.dp', 'delta_db.h5')
+    report = profile_program('examples/logistics_decision.dp', 'delta_db_synthetic.h5')
     print(report)
     
     # Save to file

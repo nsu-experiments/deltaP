@@ -1,0 +1,231 @@
+// =============================================================================
+// manufacturing/decision.dp
+// Manufacturing Network Decision Analysis
+// =============================================================================
+//
+// Calculate probabilities and compare routes (decision mode).
+//
+// =============================================================================
+
+dpSem decision;
+
+// =============================================================================
+// IMPORTS
+// =============================================================================
+
+// Configuration
+// @import config;
+
+// For now, manually include essentials:
+r1 := 1; r2 := 2; r3 := 3;
+Route := [r1:r3];
+
+usa := 1;
+china := 2;
+germany := 3;
+india := 4;
+brazil := 5;
+Country := [usa:brazil];
+
+
+baseline := 1;
+carbon_strict := 2;
+border_tight := 3;
+combined := 4;
+Scenario := [baseline:combined];
+
+Month := [1:12];
+
+
+// =============================================================================
+// DYNAMIC PREDICATES
+// =============================================================================
+
+
+Year := [2006:2020];
+
+// Arguments must match database order: (year, country, govt_incentive)
+dp meets_efficiency(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
+
+dp meets_service(year, country, govt_incentive) :  
+    year in Year & country in Country & govt_incentive in [1:2];
+
+dp meets_sustainability(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
+
+// =============================================================================
+// PROBABILITY AGGREGATION
+// =============================================================================
+
+// =============================================================================
+// PROBABILITY AGGREGATION
+// =============================================================================
+
+// Calculate average probability across time periods
+sp avg_efficiency(country, scenario) := (
+    meets_efficiency(2006, country, scenario) +
+    meets_efficiency(2007, country, scenario) +
+    meets_efficiency(2008, country, scenario) +
+    meets_efficiency(2009, country, scenario) +
+    meets_efficiency(2010, country, scenario) +
+    meets_efficiency(2011, country, scenario) +
+    meets_efficiency(2012, country, scenario) +
+    meets_efficiency(2013, country, scenario) +
+    meets_efficiency(2014, country, scenario) +
+    meets_efficiency(2015, country, scenario) +
+    meets_efficiency(2016, country, scenario) +
+    meets_efficiency(2017, country, scenario) +
+    meets_efficiency(2018, country, scenario) +
+    meets_efficiency(2019, country, scenario) +
+    meets_efficiency(2020, country, scenario)
+) / 15.0;
+
+sp avg_service(country, scenario) := (
+    meets_service(2006, country, scenario) +
+    meets_service(2007, country, scenario) +
+    meets_service(2008, country, scenario) +
+    meets_service(2009, country, scenario) +
+    meets_service(2010, country, scenario) +
+    meets_service(2011, country, scenario) +
+    meets_service(2012, country, scenario) +
+    meets_service(2013, country, scenario) +
+    meets_service(2014, country, scenario) +
+    meets_service(2015, country, scenario) +
+    meets_service(2016, country, scenario) +
+    meets_service(2017, country, scenario) +
+    meets_service(2018, country, scenario) +
+    meets_service(2019, country, scenario) +
+    meets_service(2020, country, scenario)
+) / 15.0;
+
+sp avg_sustainability(country, scenario) := (
+    meets_sustainability(2006, country, scenario) +
+    meets_sustainability(2007, country, scenario) +
+    meets_sustainability(2008, country, scenario) +
+    meets_sustainability(2009, country, scenario) +
+    meets_sustainability(2010, country, scenario) +
+    meets_sustainability(2011, country, scenario) +
+    meets_sustainability(2012, country, scenario) +
+    meets_sustainability(2013, country, scenario) +
+    meets_sustainability(2014, country, scenario) +
+    meets_sustainability(2015, country, scenario) +
+    meets_sustainability(2016, country, scenario) +
+    meets_sustainability(2017, country, scenario) +
+    meets_sustainability(2018, country, scenario) +
+    meets_sustainability(2019, country, scenario) +
+    meets_sustainability(2020, country, scenario)
+) / 15.0;
+
+// Composite score (geometric mean)
+sp composite_score(country, scenario) := 
+    avg_efficiency(country, scenario) * 
+    avg_service(country, scenario) * 
+    avg_sustainability(country, scenario);
+
+// =============================================================================
+// ANALYSIS
+// =============================================================================
+
+output("=== manufacturing Decision Analysis (Real Bioethanol Data) ===");
+output("");
+
+current_scenario := baseline;
+
+output("Scenario: Baseline (Govt_Incentive=0)");
+output("");
+
+// USA
+usa_eff := avg_efficiency(usa, current_scenario);
+usa_svc := avg_service(usa, current_scenario);
+usa_sus := avg_sustainability(usa, current_scenario);
+usa_score := composite_score(usa, current_scenario);
+
+output("USA:");
+output("  Efficiency:     ", usa_eff);
+output("  Service:        ", usa_svc);
+output("  Sustainability: ", usa_sus);
+output("  Composite:      ", usa_score);
+output("");
+
+// China
+china_eff := avg_efficiency(china, current_scenario);
+china_svc := avg_service(china, current_scenario);
+china_sus := avg_sustainability(china, current_scenario);
+china_score := composite_score(china, current_scenario);
+
+output("China:");
+output("  Efficiency:     ", china_eff);
+output("  Service:        ", china_svc);
+output("  Sustainability: ", china_sus);
+output("  Composite:      ", china_score);
+output("");
+
+// Germany
+germany_eff := avg_efficiency(germany, current_scenario);
+germany_svc := avg_service(germany, current_scenario);
+germany_sus := avg_sustainability(germany, current_scenario);
+germany_score := composite_score(germany, current_scenario);
+
+output("Germany:");
+output("  Efficiency:     ", germany_eff);
+output("  Service:        ", germany_svc);
+output("  Sustainability: ", germany_sus);
+output("  Composite:      ", germany_score);
+output("");
+
+// India
+india_eff := avg_efficiency(india, current_scenario);
+india_svc := avg_service(india, current_scenario);
+india_sus := avg_sustainability(india, current_scenario);
+india_score := composite_score(india, current_scenario);
+
+output("India:");
+output("  Efficiency:     ", india_eff);
+output("  Service:        ", india_svc);
+output("  Sustainability: ", india_sus);
+output("  Composite:      ", india_score);
+output("");
+
+// Brazil
+brazil_eff := avg_efficiency(brazil, current_scenario);
+brazil_svc := avg_service(brazil, current_scenario);
+brazil_sus := avg_sustainability(brazil, current_scenario);
+brazil_score := composite_score(brazil, current_scenario);
+
+output("Brazil:");
+output("  Efficiency:     ", brazil_eff);
+output("  Service:        ", brazil_svc);
+output("  Sustainability: ", brazil_sus);
+output("  Composite:      ", brazil_score);
+output("");
+
+// Country comparison
+if (usa_score > china_score & usa_score > germany_score & usa_score > india_score & usa_score > brazil_score) then {
+    output("Recommendation: USA (highest composite score)");
+}
+
+if (china_score > usa_score & china_score > germany_score & china_score > india_score & china_score > brazil_score) then {
+    output("Recommendation: China (highest composite score)");
+}
+
+if (germany_score > usa_score & germany_score > china_score & germany_score > india_score & germany_score > brazil_score) then {
+    output("Recommendation: Germany (highest composite score)");
+}
+
+if (india_score > usa_score & india_score > china_score & india_score > germany_score & india_score > brazil_score) then {
+    output("Recommendation: India (highest composite score)");
+}
+
+if (brazil_score > usa_score & brazil_score > china_score & brazil_score > germany_score & brazil_score > india_score) then {
+    output("Recommendation: Brazil (highest composite score)");
+}
+
+output("");
+output("=== CSV Output ===");
+output("country,efficiency,service,sustainability,composite");
+output("1,", usa_eff, ",", usa_svc, ",", usa_sus, ",", usa_score);
+output("2,", china_eff, ",", china_svc, ",", china_sus, ",", china_score);
+output("3,", germany_eff, ",", germany_svc, ",", germany_sus, ",", germany_score);
+output("4,", india_eff, ",", india_svc, ",", india_sus, ",", india_score);
+output("5,", brazil_eff, ",", brazil_svc, ",", brazil_sus, ",", brazil_score);

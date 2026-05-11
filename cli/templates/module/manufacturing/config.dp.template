@@ -1,0 +1,105 @@
+// =============================================================================
+// {{module_name}}/config.dp
+// Configuration: Manufacturing Network Parameters
+// =============================================================================
+//
+// Define routes, scenarios, KPIs, and network structure for manufacturing analysis.
+//
+// =============================================================================
+
+
+// =============================================================================
+// ROUTES
+// =============================================================================
+
+r1 := 1;  // Route 1 (primary corridor)
+r2 := 2;  // Route 2 (alternative corridor)
+r3 := 3;  // Route 3 (hybrid/backup corridor)
+
+Route := [r1:r3];
+
+// =============================================================================
+// COUNTRY TO ROUTE MAPPING (for CSV import)
+// =============================================================================
+
+usa := 1;      // USA → Route 1
+china := 2;    // China → Route 2
+germany := 3;  // Germany → Route 3
+india := 4;    // India → Route 4
+brazil := 5;   // Brazil → Route 5
+
+Country := [usa:brazil];
+
+// =============================================================================
+// KEY PERFORMANCE INDICATORS (KPIs)
+// =============================================================================
+
+efficiency := 1;         // Transport efficiency
+service_quality := 2;    // Service quality
+sustainability := 3;     // Environmental sustainability
+adaptability := 4;       // Network adaptability
+resilience := 5;         // Strategic resilience
+
+KPI := [efficiency:resilience];
+
+
+// =============================================================================
+// SCENARIOS (Disruption types)
+// =============================================================================
+
+baseline := 1;
+carbon_strict := 2;
+border_tight := 3;
+combined := 4;
+
+Scenario := [baseline:combined];
+
+
+// =============================================================================
+// CLASSIFICATION THRESHOLDS
+// =============================================================================
+
+theta_high := 0.7;   // Upper threshold: preferred routes
+theta_low := 0.4;    // Lower threshold: restricted routes
+
+theta_sustainability := 5.0;  // Carbon emissions threshold (< 5.0 is good)
+
+preferred := 1;
+alternative := 2;
+restricted := 3;
+
+Priority := [preferred:restricted];
+
+sp classify_route(score) := 
+    (score >= theta_high & preferred) |
+    (score > theta_low & score < theta_high & alternative) |
+    (score <= theta_low & restricted);
+
+
+// =============================================================================
+// TIME PERIODS
+// =============================================================================
+
+Month := [1:12];
+
+
+// =============================================================================
+// HELPER PREDICATES
+// =============================================================================
+
+sp abs(x) := (x >= 0 & x) | (x < 0 & -x);
+sp min(a, b) := (a < b & a) | (a >= b & b);
+sp max(a, b) := (a > b & a) | (a <= b & b);
+
+
+// =============================================================================
+// PROBABILITY HELPERS
+// =============================================================================
+
+sp is_likely(p) := p >= 0.5;
+sp is_highly_likely(p) := p >= 0.8;
+
+
+// =============================================================================
+// END OF CONFIG
+// =============================================================================

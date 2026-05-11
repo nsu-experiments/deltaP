@@ -1,0 +1,25 @@
+[project]
+name = "_test3"
+version = "0.1.0"
+authors = ["Unknown"]
+description = ""
+license = "MIT"
+
+[dependencies]
+{{#if dplib_categories}}
+dplib = { version = "0.1", categories = [{{dplib_categories}}] }
+{{else}}
+# dplib = { version = "0.1", categories = ["logistics", "finance"] }
+{{/if}}
+
+[output]
+formats = [{{output_formats}}]
+directory = "results"
+
+[settings]
+default_mode = "{{mode}}"
+
+[dev]
+# Development settings
+test_directory = "tests"
+data_directory = "data"

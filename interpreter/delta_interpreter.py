@@ -5,6 +5,7 @@ DeltaP interpreter main entry point.
 """
 
 import sys
+import os
 from pathlib import Path
 from .parser import DeltaParser
 from .evaluator import Interpreter
@@ -22,7 +23,7 @@ def main():
         return 0
     
     prog_file = sys.argv[1]
-    db_file = sys.argv[2] if len(sys.argv) > 2 else "delta_db.h5"
+    db_file = os.environ.get('DELTAP_DB') or (sys.argv[2] if len(sys.argv) > 2 else "delta_db.h5")
     
     base_path = Path.cwd()
 
