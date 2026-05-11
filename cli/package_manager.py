@@ -17,6 +17,8 @@ from .run_command import cmd_run
 from .populate_command import cmd_populate
 from .sync_command import cmd_sync
 from .ink_command import cmd_ink 
+from .import_command import cmd_import
+from .data_command import cmd_data
 
 
 def cmd_publish(args):
@@ -70,14 +72,32 @@ def main():
     populate_parser.add_argument("module", nargs='?', help="Module name (omit to populate all)")
     populate_parser.set_defaults(func=cmd_populate)
 
+    # dp import
+    import_parser = subparsers.add_parser("import", help="Import real datasets into HDF5 database")
+    import_parser.add_argument("module", help="Module name (e.g., logistics, finance)")
+    import_parser.set_defaults(func=cmd_import)
+
     # dp sync
     sync_parser = subparsers.add_parser("sync", help="Sync CSV/JSON data to HDF5 database")
     sync_parser.add_argument("module", nargs='?', help="Module name (omit to sync all)")
     sync_parser.set_defaults(func=cmd_sync)
 
+    # dp data
+    data_parser = subparsers.add_parser("data", help="Inspect HDF5 database contents")
+    data_parser.add_argument("--database", help="Path to HDF5 database (default: delta_db.h5)")
+    data_parser.add_argument("--synthetic", "-s", action="store_true", 
+                            help="Inspect synthetic database (delta_db_synthetic.h5)")
+    data_parser.add_argument("--verbose", "-v", action="store_true", 
+                            help="Show sample rows for each predicate")
+    data_parser.add_argument("--samples", "-n", type=int, default=3,
+                            help="Number of sample rows to show (default: 3)")
+    data_parser.set_defaults(func=cmd_data)
+
     # dp ink
     ink_parser = subparsers.add_parser("ink", help="Generate visualizations from simulation results")
     ink_parser.add_argument("module_name", help="Name of the module to visualize")
+    ink_parser.add_argument("mode", nargs='?', choices=['decision', 'simulation', 'd', 's'],
+                           help="Mode to visualize (optional, will prompt if omitted)")
     ink_parser.add_argument("--eda", action="store_true", help="Enable full EDA report")
     ink_parser.add_argument("--output", metavar="DIR", help="Output directory for plots (default: results/plots)")
     ink_parser.set_defaults(func=cmd_ink)
