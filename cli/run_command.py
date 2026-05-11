@@ -121,45 +121,76 @@ def cmd_run(args):
             output_file = results_dir / f'{mode}_output.txt'
             output_file.write_text(result.stdout)
             
-            # Extract CSV data from output
+            # Extract CSV data from output - handle multiple tiers
             lines = result.stdout.split('\n')
-            csv_lines = []
+            tier_csvs = {}  # {tier_name: [csv_lines]}
+            current_tier = None
+            current_csv = []
             found_header = False
             
             for line in lines:
+                # Check for tier markers
+                if line.startswith('TIER:'):
+                    # Save previous tier if exists
+                    if current_tier and current_csv:
+                        tier_csvs[current_tier] = current_csv
+                    # Start new tier
+                    current_tier = line.split(':')[1].strip().lower()
+                    current_csv = []
+                    found_header = False
+                    continue
+                
                 # Skip empty lines and section headers
                 if not line.strip() or line.startswith('==='):
                     continue
                 
-                # Look for actual CSV (has commas)
+                # Look for CSV lines (either in tier or regular output)
                 if ',' in line:
-                    # Skip title/prose lines (usually longer words, spaces between words)
                     stripped = line.strip()
                     
-                    # If we haven't found header yet, check if this is the header row
                     if not found_header:
-                        # Header typically has column names without spaces in the values
-                        # Check if first field looks like a column name (short, no spaces)
                         first_field = stripped.split(',')[0].strip()
-                        
-                        # Common CSV header patterns
                         if (first_field.lower() in ['weather', 'hour', 'scenario', 'route', 'country', 'risk'] or
                             first_field.replace('_', '').isalnum()):
-                            # This is the header
                             found_header = True
                             cleaned = ','.join(part.strip() for part in line.split(','))
-                            csv_lines.append(cleaned)
+                            if current_tier:
+                                current_csv.append(cleaned)
+                            else:
+                                # Regular CSV (non-tiered)
+                                if 'csv_lines' not in locals():
+                                    csv_lines = []
+                                csv_lines.append(cleaned)
                     else:
-                        # We've found header, so include all subsequent CSV lines
                         cleaned = ','.join(part.strip() for part in line.split(','))
-                        csv_lines.append(cleaned)
+                        if current_tier:
+                            current_csv.append(cleaned)
+                        else:
+                            if 'csv_lines' not in locals():
+                                csv_lines = []
+                            csv_lines.append(cleaned)
             
-            # Write CSV file if we found data
-            if csv_lines:
+            # Save last tier
+            if current_tier and current_csv:
+                tier_csvs[current_tier] = current_csv
+            
+            # Write tier-specific CSV files
+            files_created = 0
+            if tier_csvs:
+                for tier_name, tier_lines in tier_csvs.items():
+                    csv_file = results_dir / f'{mode}_{tier_name}.csv'
+                    csv_file.write_text('\n'.join(tier_lines) + '\n')
+                    files_created += 1
+                if run_single_mode:
+                    print(f"\n💾 Generated {files_created} tier files in: {results_dir}")
+            
+            # Also save non-tiered CSV if exists
+            if 'csv_lines' in locals() and csv_lines:
                 csv_file = results_dir / f'{mode}_results.csv'
                 csv_file.write_text('\n'.join(csv_lines) + '\n')
+                files_created += 1
             
-            if run_single_mode:
+            if run_single_mode and files_created == 0:
                 print(f"\n💾 Output saved to: {results_dir}")
         
         if result.returncode == 0:
