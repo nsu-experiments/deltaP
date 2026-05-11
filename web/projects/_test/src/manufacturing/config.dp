@@ -63,6 +63,13 @@ theta_high := 0.7;   // Upper threshold: preferred routes
 theta_low := 0.4;    // Lower threshold: restricted routes
 
 theta_sustainability := 5.0;  // Carbon emissions threshold (< 5.0 is good)
+theta_demand := 120.0;        // Market demand > 120 (production units)
+theta_capacity := 150.0;      // Production capacity > 150
+
+// Performance tier thresholds for efficiency analysis
+theta_basic := 0.7;       // Basic compliance (70%+ efficiency)
+theta_advanced := 0.8;    // Advanced performance (80%+ efficiency)
+theta_excellence := 0.9;  // Operational excellence (90%+ efficiency)
 
 preferred := 1;
 alternative := 2;

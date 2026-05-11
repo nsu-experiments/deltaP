@@ -19,6 +19,7 @@ from .sync_command import cmd_sync
 from .ink_command import cmd_ink 
 from .import_command import cmd_import
 from .data_command import cmd_data
+from .join_command import cmd_join
 
 
 def cmd_publish(args):
@@ -101,6 +102,12 @@ def main():
     ink_parser.add_argument("--eda", action="store_true", help="Enable full EDA report")
     ink_parser.add_argument("--output", metavar="DIR", help="Output directory for plots (default: results/plots)")
     ink_parser.set_defaults(func=cmd_ink)
+
+    # dp join:
+    join_parser = subparsers.add_parser('join', help='Join tier CSV files')
+    join_parser.add_argument('module', help='Module name')
+    join_parser.add_argument('mode', help='Mode (decision/simulation)')
+    join_parser.set_defaults(func=cmd_join)
     
     # dp publish
     publish_parser = subparsers.add_parser("publish", help="Publish package (not implemented)")
