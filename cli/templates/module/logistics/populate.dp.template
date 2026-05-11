@@ -1,15 +1,14 @@
 // =============================================================================
 // {{module_name}}/populate.dp
-// Generate synthetic logistics network data
+// Generate synthetic supply chain logistics data
 // =============================================================================
 //
-// This script generates synthetic performance data for logistics routes.
+// This script generates synthetic performance data for delivery operations.
 // Run with: dp populate {{module_name}}
 //
-// Output: data/_synthetic/{{module_name}}.csv
+// Output: data/{{module_name}}/_synthetic/{{module_name}}.csv
 //
-// Based on probabilistic logistics network analysis with three routes
-// under different disruption scenarios.
+// Based on hourly delivery performance under varying weather, traffic, and risk conditions.
 //
 // =============================================================================
 
@@ -19,63 +18,63 @@ dpSem simulation;
 // CONFIGURATION
 // =============================================================================
 
-r1 := 1; r2 := 2; r3 := 3;
-baseline := 1;
-carbon_strict := 2;
-border_tight := 3;
-combined := 4;
+// Weather conditions
+clear := 1;
+cloudy := 2;
+stormy := 3;
 
+// Traffic levels
+light := 1;
+moderate := 2;
+heavy := 3;
+
+// Risk levels
+low_risk := 1;
+moderate_risk := 2;
+high_risk := 3;
 
 // =============================================================================
 // DATA GENERATION
 // =============================================================================
 
-output("route,scenario,month,efficiency,service,sustainability");
+output("hour,weather,traffic,risk,on_time,fuel,cargo");
 
-// Route 1 - Baseline scenario (high performance)
-for month in [1:12] do {
-    eff := (month <= 8) & 1.0 | 0.0;      // 67% efficiency (8/12 months)
-    svc := (month <= 8) & 1.0 | 0.0;      // 67% service
-    sus := (month <= 7) & 1.0 | 0.0;      // 58% sustainability
-    output("1,1,", month, ",", eff, ",", svc, ",", sus);
+// Scenario 1: Optimal conditions (clear weather, light traffic, low risk)
+for hour in [0:23] do {
+    on_time := (hour >= 6 & hour <= 20) & 1.0 | 0.0;  // 62.5% (15/24 hours)
+    fuel := (hour >= 8 & hour <= 18) & 1.0 | 0.0;     // 45.8% (11/24 hours)
+    cargo := (hour >= 7 & hour <= 19) & 1.0 | 0.0;    // 54.2% (13/24 hours)
+    output(hour, ",", clear, ",", light, ",", low_risk, ",", on_time, ",", fuel, ",", cargo);
 }
 
-// Route 1 - Border tight scenario (degraded)
-for month in [1:12] do {
-    eff := (month <= 5) & 1.0 | 0.0;      // 42% efficiency
-    svc := (month >= 2 & month <= 6) & 1.0 | 0.0;  // 42% service
-    sus := (month <= 6) & 1.0 | 0.0;      // 50% sustainability
-    output("1,3,", month, ",", eff, ",", svc, ",", sus);
+// Scenario 2: Moderate conditions (cloudy weather, moderate traffic, moderate risk)
+for hour in [0:23] do {
+    on_time := (hour >= 7 & hour <= 18) & 1.0 | 0.0;  // 50% (12/24 hours)
+    fuel := (hour >= 9 & hour <= 17) & 1.0 | 0.0;     // 37.5% (9/24 hours)
+    cargo := (hour >= 8 & hour <= 18) & 1.0 | 0.0;    // 45.8% (11/24 hours)
+    output(hour, ",", cloudy, ",", moderate, ",", moderate_risk, ",", on_time, ",", fuel, ",", cargo);
 }
 
-// Route 2 - Baseline scenario (moderate performance)
-for month in [1:12] do {
-    eff := (month <= 5) & 1.0 | 0.0;      // 42% efficiency
-    svc := (month <= 6) & 1.0 | 0.0;      // 50% service
-    sus := (month <= 6) & 1.0 | 0.0;      // 50% sustainability
-    output("2,1,", month, ",", eff, ",", svc, ",", sus);
+// Scenario 3: Challenging conditions (stormy weather, heavy traffic, high risk)
+for hour in [0:23] do {
+    on_time := (hour >= 9 & hour <= 16) & 1.0 | 0.0;  // 33.3% (8/24 hours)
+    fuel := (hour >= 10 & hour <= 15) & 1.0 | 0.0;    // 25% (6/24 hours)
+    cargo := (hour >= 9 & hour <= 16) & 1.0 | 0.0;    // 33.3% (8/24 hours)
+    output(hour, ",", stormy, ",", heavy, ",", high_risk, ",", on_time, ",", fuel, ",", cargo);
 }
 
-// Route 2 - Border tight scenario (severely degraded)
-for month in [1:12] do {
-    eff := (month <= 3) & 1.0 | 0.0;      // 25% efficiency
-    svc := (month <= 6) & 1.0 | 0.0;      // 50% service (maintains!)
-    sus := (month <= 5) & 1.0 | 0.0;      // 42% sustainability
-    output("2,3,", month, ",", eff, ",", svc, ",", sus);
+// Scenario 4: Mixed conditions - clear weather but heavy traffic (urban rush hour effect)
+for hour in [0:23] do {
+    on_time := ((hour >= 0 & hour <= 6) | (hour >= 20 & hour <= 23)) & 1.0 | 0.0;  // 41.7% (10/24 hours - avoid rush)
+    fuel := (hour >= 1 & hour <= 5) & 1.0 | 0.0;      // 20.8% (5/24 hours)
+    cargo := ((hour >= 0 & hour <= 7) | (hour >= 21 & hour <= 23)) & 1.0 | 0.0;    // 45.8% (11/24 hours)
+    output(hour, ",", clear, ",", heavy, ",", moderate_risk, ",", on_time, ",", fuel, ",", cargo);
 }
 
-// Route 3 - Baseline scenario (balanced, with resilience)
-for month in [1:12] do {
-    eff := (month <= 7) & 1.0 | 0.0;      // 58% efficiency
-    svc := (month <= 7) & 1.0 | 0.0;      // 58% service
-    sus := (month >= 2 & month <= 7) & 1.0 | 0.0;  // 50% sustainability
-    output("3,1,", month, ",", eff, ",", svc, ",", sus);
-}
-
-// Route 3 - Border tight scenario (maintains performance!)
-for month in [1:12] do {
-    eff := (month <= 7) & 1.0 | 0.0;      // 58% efficiency (maintains!)
-    svc := (month >= 2 & month <= 8) & 1.0 | 0.0;  // 58% service (maintains!)
-    sus := (month >= 2 & month <= 7) & 1.0 | 0.0;  // 50% sustainability
-    output("3,3,", month, ",", eff, ",", svc, ",", sus);
+// Scenario 5: Stormy weather but light traffic (weekend/holiday delivery window)
+for hour in [0:23] do {
+    on_time := (hour >= 8 & hour <= 17) & 1.0 | 0.0;  // 41.7% (10/24 hours)
+    fuel := (hour >= 9 & hour <= 16) & 1.0 | 0.0;     // 33.3% (8/24 hours)
+    cargo := (hour >= 8 & hour <= 16) & 1.0 | 0.0;    // 37.5% (9/24 hours)
+    output(hour, ",", stormy, ",", light, ",", low_risk, ",", on_time, ",", fuel, ",", cargo);
 }

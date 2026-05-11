@@ -1,92 +1,60 @@
 // =============================================================================
-// {{module_name}}/config.dp
-// Configuration: Logistics Network Parameters
-// =============================================================================
-//
-// Define routes, scenarios, KPIs, and network structure for logistics analysis.
-//
+// logistics/config.dp
+// Configuration: Supply Chain Logistics Parameters
 // =============================================================================
 
-
 // =============================================================================
-// ROUTES
-// =============================================================================
-
-r1 := 1;  // Route 1 (primary corridor)
-r2 := 2;  // Route 2 (alternative corridor)
-r3 := 3;  // Route 3 (hybrid/backup corridor)
-
-Route := [r1:r3];
-
-
-// =============================================================================
-// KEY PERFORMANCE INDICATORS (KPIs)
+// RISK CLASSIFICATION
 // =============================================================================
 
-efficiency := 1;         // Transport efficiency
-service_quality := 2;    // Service quality
-sustainability := 3;     // Environmental sustainability
-adaptability := 4;       // Network adaptability
-resilience := 5;         // Strategic resilience
+low_risk := 1;
+moderate_risk := 2;
+high_risk := 3;
 
-KPI := [efficiency:resilience];
-
+RiskLevel := [low_risk:high_risk];
 
 // =============================================================================
-// SCENARIOS (Disruption types)
+// WEATHER CONDITIONS
 // =============================================================================
 
-baseline := 1;
-carbon_strict := 2;
-border_tight := 3;
-combined := 4;
+clear := 1;      // Low severity (0-0.33)
+cloudy := 2;     // Medium severity (0.33-0.66)
+stormy := 3;     // High severity (0.66-1.0)
 
-Scenario := [baseline:combined];
-
+Weather := [clear:stormy];
 
 // =============================================================================
-// CLASSIFICATION THRESHOLDS
+// TRAFFIC LEVELS
 // =============================================================================
 
-theta_high := 0.7;   // Upper threshold: preferred routes
-theta_low := 0.4;    // Lower threshold: restricted routes
+light := 1;      // 0-3
+moderate := 2;   // 3-6
+heavy := 3;      // 6-10
 
-preferred := 1;
-alternative := 2;
-restricted := 3;
-
-Priority := [preferred:restricted];
-
-sp classify_route(score) := 
-    (score >= theta_high & preferred) |
-    (score > theta_low & score < theta_high & alternative) |
-    (score <= theta_low & restricted);
-
+Traffic := [light:heavy];
 
 // =============================================================================
 // TIME PERIODS
 // =============================================================================
 
+Hour := [0:23];
 Month := [1:12];
 
+// =============================================================================
+// KPI THRESHOLDS
+// =============================================================================
+
+theta_delay := 0.5;              // Delay probability < 0.5 is acceptable
+theta_disruption := 0.5;         // Disruption likelihood < 0.5
+theta_fuel := 7.0;               // Fuel consumption < 7.0 L/h
+theta_delivery_deviation := 5.0;  // Delivery time deviation < 5 hours
 
 // =============================================================================
 // HELPER PREDICATES
 // =============================================================================
 
 sp abs(x) := (x >= 0 & x) | (x < 0 & -x);
-sp min(a, b) := (a < b & a) | (a >= b & b);
-sp max(a, b) := (a > b & a) | (a <= b & b);
-
-
-// =============================================================================
-// PROBABILITY HELPERS
-// =============================================================================
-
-sp is_likely(p) := p >= 0.5;
-sp is_highly_likely(p) := p >= 0.8;
-
-
-// =============================================================================
-// END OF CONFIG
-// =============================================================================
+sp classify_weather(severity) := 
+    (severity < 0.33 & clear) |
+    (severity >= 0.33 & severity < 0.66 & cloudy) |
+    (severity >= 0.66 & stormy);

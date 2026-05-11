@@ -1,78 +1,68 @@
 // =============================================================================
-// {{module_name}}/simulation.dp
-// Logistics Network Simulation
-// =============================================================================
-//
-// Samples monthly outcomes for logistics routes (simulation mode).
-//
-// Architecture:
-//   - Imports configuration
-//   - Samples dynamic predicates for each month
-//   - Outputs monthly performance data
-//
+// logistics/simulation.dp
+// Supply Chain Logistics Simulation
 // =============================================================================
 
 dpSem simulation;
 
 // =============================================================================
-// IMPORTS
+// CONFIGURATION
 // =============================================================================
 
-// Configuration
-// @import config;
+clear := 1;
+cloudy := 2;
+stormy := 3;
+Weather := [clear:stormy];
 
-// For now, manually include config:
-r1 := 1; r2 := 2; r3 := 3;
-Route := [r1:r3];
+light := 1;
+moderate := 2;
+heavy := 3;
+Traffic := [light:heavy];
 
-baseline := 1;
-carbon_strict := 2;
-border_tight := 3;
-combined := 4;
-Scenario := [baseline:combined];
+low_risk := 1;
+moderate_risk := 2;
+high_risk := 3;
+RiskLevel := [low_risk:high_risk];
 
-Month := [1:12];
-
-
-// =============================================================================
-// DYNAMIC PREDICATES (Sampled each run)
-// =============================================================================
-
-dp meets_efficiency(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
-
-dp meets_service_quality(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
-
-dp meets_sustainability(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
-
+Hour := [0:23];
 
 // =============================================================================
-// COMPOSITE SUCCESS (All KPIs must pass)
+// DYNAMIC PREDICATES
 // =============================================================================
 
-sp composite_success(route, scenario, month) := 
-    meets_efficiency(route, scenario, month) & 
-    meets_service_quality(route, scenario, month) & 
-    meets_sustainability(route, scenario, month);
+dp meets_on_time_delivery(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
 
+dp meets_fuel_efficiency(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
+
+dp meets_cargo_quality(hour, weather, traffic, risk_level) : 
+    hour in Hour & weather in Weather & traffic in Traffic & risk_level in RiskLevel;
 
 // =============================================================================
-// SIMULATION: Sample outcomes for selected scenario
+// COMPOSITE SUCCESS
 // =============================================================================
 
-current_scenario := baseline;
+sp composite_success(hour, weather, traffic, risk_level) := 
+    meets_on_time_delivery(hour, weather, traffic, risk_level) & 
+    meets_fuel_efficiency(hour, weather, traffic, risk_level) & 
+    meets_cargo_quality(hour, weather, traffic, risk_level);
 
-output("scenario,route,month,efficiency,service,sustainability,composite");
+// =============================================================================
+// SIMULATION
+// =============================================================================
 
-for route in Route do {
-    for month in Month do {
-        eff := meets_efficiency(route, current_scenario, month);
-        svc := meets_service_quality(route, current_scenario, month);
-        sus := meets_sustainability(route, current_scenario, month);
-        result := composite_success(route, current_scenario, month);
-        
-        output(current_scenario, ",", route, ",", month, ",", eff, ",", svc, ",", sus, ",", result);
-    }
+current_weather := clear;
+current_traffic := light;
+current_risk := low_risk;
+
+output("hour,weather,traffic,risk,on_time,fuel,cargo,composite");
+
+for hour in Hour do {
+    ot := meets_on_time_delivery(hour, current_weather, current_traffic, current_risk);
+    fuel := meets_fuel_efficiency(hour, current_weather, current_traffic, current_risk);
+    cargo := meets_cargo_quality(hour, current_weather, current_traffic, current_risk);
+    result := composite_success(hour, current_weather, current_traffic, current_risk);
+    
+    output(hour, ",", current_weather, ",", current_traffic, ",", current_risk, ",", ot, ",", fuel, ",", cargo, ",", result);
 }
