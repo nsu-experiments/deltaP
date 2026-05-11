@@ -1,0 +1,43 @@
+=== manufacturing Decision Analysis (Real Bioethanol Data) ===
+
+Scenario: Baseline (Govt_Incentive=0)
+
+USA:
+  Efficiency:      1.0
+  Service:         1.0
+  Sustainability:  0.3333333333333333
+  Composite:       0.3333333333333333
+
+China:
+  Efficiency:      1.0
+  Service:         1.0
+  Sustainability:  0.2
+  Composite:       0.2
+
+Germany:
+  Efficiency:      1.0
+  Service:         1.0
+  Sustainability:  0.5333333333333333
+  Composite:       0.5333333333333333
+
+India:
+  Efficiency:      1.0
+  Service:         1.0
+  Sustainability:  0.4
+  Composite:       0.4
+
+Brazil:
+  Efficiency:      1.0
+  Service:         1.0
+  Sustainability:  0.4
+  Composite:       0.4
+
+Recommendation: Germany (highest composite score)
+
+=== CSV Output ===
+country,efficiency,service,sustainability,composite
+1, 1.0 , 1.0 , 0.3333333333333333 , 0.3333333333333333
+2, 1.0 , 1.0 , 0.2 , 0.2
+3, 1.0 , 1.0 , 0.5333333333333333 , 0.5333333333333333
+4, 1.0 , 1.0 , 0.4 , 0.4
+5, 1.0 , 1.0 , 0.4 , 0.4
