@@ -105,6 +105,11 @@ def map_csv_to_predicates(csv_path: Path, module: str, verbose=False) -> dict:
                 if pred_name:  # Only add if mapping exists
                     value_column_mappings[col] = pred_name
                     predicates[pred_name] = []
+
+                    if module == 'manufacturing' and pred_name == 'meets_efficiency':
+                        predicates['meets_efficiency_basic'] = []
+                        predicates['meets_efficiency_advanced'] = []
+                        predicates['meets_efficiency_excellence'] = []
         
         if verbose:
             print(f"    Detected argument columns: {arg_column_names}")
@@ -121,7 +126,12 @@ def map_csv_to_predicates(csv_path: Path, module: str, verbose=False) -> dict:
         else:
             default_threshold = dp_config['thresholds'].get('theta_high', 0.7)
             sustainability_threshold = dp_config['thresholds'].get('theta_sustainability', 5.0)
-        
+            demand_threshold = dp_config['thresholds'].get('theta_demand', 120.0)
+            capacity_threshold = dp_config['thresholds'].get('theta_capacity', 150.0)
+
+            basic_threshold = dp_config['thresholds'].get('theta_basic', 0.7)
+            advanced_threshold = dp_config['thresholds'].get('theta_advanced', 0.8)
+            excellence_threshold = dp_config['thresholds'].get('theta_excellence', 0.9)
         country_map = dp_config.get('country_map', {})
         
         # Process rows
@@ -201,17 +211,37 @@ def map_csv_to_predicates(csv_path: Path, module: str, verbose=False) -> dict:
                     if module == 'logistics':
                         # Logistics-specific thresholds
                         if 'on_time' in pred_name or 'delay' in pred_name:
-                            meets = 1.0 if value < delay_threshold else 0.0  # Lower delay is better
+                            meets = 1.0 if value < delay_threshold else 0.0
                         elif 'fuel' in pred_name:
-                            meets = 1.0 if value < fuel_threshold else 0.0  # Lower consumption is better
+                            meets = 1.0 if value < fuel_threshold else 0.0
                         elif 'cargo' in pred_name or 'quality' in pred_name:
-                            meets = 1.0 if value > 0.5 else 0.0  # Higher quality is better
+                            meets = 1.0 if value > 0.5 else 0.0
                         else:
-                            meets = 1.0 if value > 0.5 else 0.0  # Default: higher is better
+                            meets = 1.0 if value > 0.5 else 0.0
                     else:
                         # Manufacturing thresholds
                         if 'sustainability' in pred_name or 'emission' in pred_name:
                             meets = 1.0 if value < sustainability_threshold else 0.0
+                        elif 'demand' in pred_name or 'service' in pred_name:
+                            meets = 1.0 if value > demand_threshold else 0.0
+                        elif 'capacity' in pred_name:
+                            meets = 1.0 if value > capacity_threshold else 0.0
+                        elif pred_name == 'meets_efficiency':
+                            # For efficiency, create three tier predicates
+                            # Basic tier (70%+)
+                            meets_basic = 1.0 if value > basic_threshold else 0.0
+                            predicates['meets_efficiency_basic'].append((args, meets_basic))
+                            
+                            # Advanced tier (80%+)
+                            meets_adv = 1.0 if value > advanced_threshold else 0.0
+                            predicates['meets_efficiency_advanced'].append((args, meets_adv))
+                            
+                            # Excellence tier (90%+)
+                            meets_exc = 1.0 if value > excellence_threshold else 0.0
+                            predicates['meets_efficiency_excellence'].append((args, meets_exc))
+                            
+                            # Also keep the default (basic) as meets_efficiency
+                            meets = meets_basic
                         else:
                             meets = 1.0 if value > default_threshold else 0.0
                     
