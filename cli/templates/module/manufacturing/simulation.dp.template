@@ -1,15 +1,6 @@
 // =============================================================================
-// {{module_name}}/simulation.dp
-// manufacturing Network Simulation
-// =============================================================================
-//
-// Samples monthly outcomes for manufacturing (simulation mode).
-//
-// Architecture:
-//   - Imports configuration
-//   - Samples dynamic predicates for each month
-//   - Outputs monthly performance data
-//
+// manufacturing/simulation.dp
+// Manufacturing Network Simulation with Multi-Tier Analysis
 // =============================================================================
 
 dpSem simulation;
@@ -21,58 +12,121 @@ dpSem simulation;
 // Configuration
 // @import config;
 
-// For now, manually include config:
-r1 := 1; r2 := 2; r3 := 3;
-Route := [r1:r3];
+// For now, manually include essentials:
+usa := 1;
+china := 2;
+germany := 3;
+india := 4;
+brazil := 5;
+Country := [usa:brazil];
 
 baseline := 1;
 carbon_strict := 2;
-border_tight := 3;
-combined := 4;
-Scenario := [baseline:combined];
+Scenario := [baseline:carbon_strict];
 
-Month := [1:12];
+Year := [2000:2024];
 
 
 // =============================================================================
-// DYNAMIC PREDICATES (Sampled each run)
+// DYNAMIC PREDICATES - BASIC TIER (70%+)
 // =============================================================================
 
-dp meets_efficiency(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
+dp meets_efficiency_basic(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
 
-dp meets_service_quality(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
+dp meets_service(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
 
-dp meets_sustainability(route, scenario, month) : 
-    route in Route & scenario in Scenario & month in Month;
-
-
-// =============================================================================
-// COMPOSITE SUCCESS (All KPIs must pass)
-// =============================================================================
-
-sp composite_success(route, scenario, month) := 
-    meets_efficiency(route, scenario, month) & 
-    meets_service_quality(route, scenario, month) & 
-    meets_sustainability(route, scenario, month);
-
+dp meets_sustainability(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
 
 // =============================================================================
-// SIMULATION: Sample outcomes for selected scenario
+// DYNAMIC PREDICATES - ADVANCED TIER (80%+)
+// =============================================================================
+
+dp meets_efficiency_advanced(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
+
+// =============================================================================
+// DYNAMIC PREDICATES - EXCELLENCE TIER (90%+)
+// =============================================================================
+
+dp meets_efficiency_excellence(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
+
+// =============================================================================
+// COMPOSITE SUCCESS PER TIER
+// =============================================================================
+
+sp composite_basic(year, country, govt_incentive) := 
+    meets_efficiency_basic(year, country, govt_incentive) & 
+    meets_service(year, country, govt_incentive) & 
+    meets_sustainability(year, country, govt_incentive);
+
+sp composite_advanced(year, country, govt_incentive) := 
+    meets_efficiency_advanced(year, country, govt_incentive) & 
+    meets_service(year, country, govt_incentive) & 
+    meets_sustainability(year, country, govt_incentive);
+
+sp composite_excellence(year, country, govt_incentive) := 
+    meets_efficiency_excellence(year, country, govt_incentive) & 
+    meets_service(year, country, govt_incentive) & 
+    meets_sustainability(year, country, govt_incentive);
+
+// =============================================================================
+// SIMULATION: BASIC TIER (70%+)
 // =============================================================================
 
 current_scenario := baseline;
 
-output("scenario,route,month,efficiency,service,sustainability,composite");
+output("TIER:BASIC");
+output("scenario,country,year,efficiency_basic,service,sustainability,composite_basic");
 
-for route in Route do {
-    for month in Month do {
-        eff := meets_efficiency(route, current_scenario, month);
-        svc := meets_service_quality(route, current_scenario, month);
-        sus := meets_sustainability(route, current_scenario, month);
-        result := composite_success(route, current_scenario, month);
+for country in Country do {
+    for year in Year do {
+        eff := meets_efficiency_basic(year, country, current_scenario);
+        svc := meets_service(year, country, current_scenario);
+        sus := meets_sustainability(year, country, current_scenario);
+        result := composite_basic(year, country, current_scenario);
         
-        output(current_scenario, ",", route, ",", month, ",", eff, ",", svc, ",", sus, ",", result);
+        output(current_scenario, ",", country, ",", year, ",", eff, ",", svc, ",", sus, ",", result);
+    }
+}
+
+// =============================================================================
+// SIMULATION: ADVANCED TIER (80%+)
+// =============================================================================
+
+output("");
+output("TIER:ADVANCED");
+output("scenario,country,year,efficiency_advanced,service,sustainability,composite_advanced");
+
+for country in Country do {
+    for year in Year do {
+        eff := meets_efficiency_advanced(year, country, current_scenario);
+        svc := meets_service(year, country, current_scenario);
+        sus := meets_sustainability(year, country, current_scenario);
+        result := composite_advanced(year, country, current_scenario);
+        
+        output(current_scenario, ",", country, ",", year, ",", eff, ",", svc, ",", sus, ",", result);
+    }
+}
+
+// =============================================================================
+// SIMULATION: EXCELLENCE TIER (90%+)
+// =============================================================================
+
+output("");
+output("TIER:EXCELLENCE");
+output("scenario,country,year,efficiency_excellence,service,sustainability,composite_excellence");
+
+for country in Country do {
+    for year in Year do {
+        eff := meets_efficiency_excellence(year, country, current_scenario);
+        svc := meets_service(year, country, current_scenario);
+        sus := meets_sustainability(year, country, current_scenario);
+        result := composite_excellence(year, country, current_scenario);
+        
+        output(current_scenario, ",", country, ",", year, ",", eff, ",", svc, ",", sus, ",", result);
     }
 }

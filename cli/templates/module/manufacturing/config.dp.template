@@ -1,9 +1,9 @@
 // =============================================================================
-// {{module_name}}/config.dp
-// Configuration: Manufacturing Network Parameters
+// manufacturing/config.dp
+// Configuration: Logistics Network Parameters
 // =============================================================================
 //
-// Define routes, scenarios, KPIs, and network structure for manufacturing analysis.
+// Define routes, scenarios, KPIs, and network structure for logistics analysis.
 //
 // =============================================================================
 
@@ -63,6 +63,8 @@ theta_high := 0.7;   // Upper threshold: preferred routes
 theta_low := 0.4;    // Lower threshold: restricted routes
 
 theta_sustainability := 5.0;  // Carbon emissions threshold (< 5.0 is good)
+theta_demand := 120.0;        // Market demand > 120 (production units)
+theta_capacity := 150.0;      // Production capacity > 150
 
 preferred := 1;
 alternative := 2;

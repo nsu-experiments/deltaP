@@ -1,5 +1,5 @@
 // =============================================================================
-// {{module_name}}/decision.dp
+// manufacturing/decision.dp
 // Manufacturing Network Decision Analysis
 // =============================================================================
 //
@@ -42,7 +42,8 @@ Month := [1:12];
 // =============================================================================
 
 
-Year := [2006:2020];
+Year := [2000:2024];
+
 
 // Arguments must match database order: (year, country, govt_incentive)
 dp meets_efficiency(year, country, govt_incentive) : 
@@ -64,6 +65,12 @@ dp meets_sustainability(year, country, govt_incentive) :
 
 // Calculate average probability across time periods
 sp avg_efficiency(country, scenario) := (
+    meets_efficiency(2000, country, scenario) +
+    meets_efficiency(2001, country, scenario) +
+    meets_efficiency(2002, country, scenario) +
+    meets_efficiency(2003, country, scenario) +
+    meets_efficiency(2004, country, scenario) +
+    meets_efficiency(2005, country, scenario) +
     meets_efficiency(2006, country, scenario) +
     meets_efficiency(2007, country, scenario) +
     meets_efficiency(2008, country, scenario) +
@@ -78,10 +85,20 @@ sp avg_efficiency(country, scenario) := (
     meets_efficiency(2017, country, scenario) +
     meets_efficiency(2018, country, scenario) +
     meets_efficiency(2019, country, scenario) +
-    meets_efficiency(2020, country, scenario)
-) / 15.0;
+    meets_efficiency(2020, country, scenario) +
+    meets_efficiency(2021, country, scenario) +
+    meets_efficiency(2022, country, scenario) +
+    meets_efficiency(2023, country, scenario) +
+    meets_efficiency(2024, country, scenario)
+) / 25.0;
 
 sp avg_service(country, scenario) := (
+    meets_service(2000, country, scenario) +
+    meets_service(2001, country, scenario) +
+    meets_service(2002, country, scenario) +
+    meets_service(2003, country, scenario) +
+    meets_service(2004, country, scenario) +
+    meets_service(2005, country, scenario) +
     meets_service(2006, country, scenario) +
     meets_service(2007, country, scenario) +
     meets_service(2008, country, scenario) +
@@ -96,10 +113,20 @@ sp avg_service(country, scenario) := (
     meets_service(2017, country, scenario) +
     meets_service(2018, country, scenario) +
     meets_service(2019, country, scenario) +
-    meets_service(2020, country, scenario)
-) / 15.0;
+    meets_service(2020, country, scenario) +
+    meets_service(2021, country, scenario) +
+    meets_service(2022, country, scenario) +
+    meets_service(2023, country, scenario) +    
+    meets_service(2024, country, scenario)
+) / 25.0;
 
 sp avg_sustainability(country, scenario) := (
+    meets_sustainability(2000, country, scenario) +
+    meets_sustainability(2001, country, scenario) +
+    meets_sustainability(2002, country, scenario) +
+    meets_sustainability(2003, country, scenario) +
+    meets_sustainability(2004, country, scenario) +
+    meets_sustainability(2005, country, scenario) +
     meets_sustainability(2006, country, scenario) +
     meets_sustainability(2007, country, scenario) +
     meets_sustainability(2008, country, scenario) +
@@ -114,8 +141,12 @@ sp avg_sustainability(country, scenario) := (
     meets_sustainability(2017, country, scenario) +
     meets_sustainability(2018, country, scenario) +
     meets_sustainability(2019, country, scenario) +
-    meets_sustainability(2020, country, scenario)
-) / 15.0;
+    meets_sustainability(2020, country, scenario) +
+    meets_sustainability(2021, country, scenario) +
+    meets_sustainability(2022, country, scenario) +
+    meets_sustainability(2023, country, scenario) +
+    meets_sustainability(2024, country, scenario)
+) / 25.0;
 
 // Composite score (geometric mean)
 sp composite_score(country, scenario) := 
@@ -229,3 +260,200 @@ output("2,", china_eff, ",", china_svc, ",", china_sus, ",", china_score);
 output("3,", germany_eff, ",", germany_svc, ",", germany_sus, ",", germany_score);
 output("4,", india_eff, ",", india_svc, ",", india_sus, ",", india_score);
 output("5,", brazil_eff, ",", brazil_svc, ",", brazil_sus, ",", brazil_score);
+
+// =============================================================================
+// MULTI-TIER EFFICIENCY ANALYSIS
+// =============================================================================
+
+// Query tier-specific predicates
+dp meets_efficiency_basic(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
+
+dp meets_efficiency_advanced(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
+
+dp meets_efficiency_excellence(year, country, govt_incentive) : 
+    year in Year & country in Country & govt_incentive in [1:2];
+
+// Calculate tier averages
+sp avg_efficiency_basic(country, scenario) := (
+    meets_efficiency_basic(2000, country, scenario) +
+    meets_efficiency_basic(2001, country, scenario) +
+    meets_efficiency_basic(2002, country, scenario) +
+    meets_efficiency_basic(2003, country, scenario) +
+    meets_efficiency_basic(2004, country, scenario) +
+    meets_efficiency_basic(2005, country, scenario) +
+    meets_efficiency_basic(2006, country, scenario) +
+    meets_efficiency_basic(2007, country, scenario) +
+    meets_efficiency_basic(2008, country, scenario) +
+    meets_efficiency_basic(2009, country, scenario) +
+    meets_efficiency_basic(2010, country, scenario) +
+    meets_efficiency_basic(2011, country, scenario) +
+    meets_efficiency_basic(2012, country, scenario) +
+    meets_efficiency_basic(2013, country, scenario) +
+    meets_efficiency_basic(2014, country, scenario) +
+    meets_efficiency_basic(2015, country, scenario) +
+    meets_efficiency_basic(2016, country, scenario) +
+    meets_efficiency_basic(2017, country, scenario) +
+    meets_efficiency_basic(2018, country, scenario) +
+    meets_efficiency_basic(2019, country, scenario) +
+    meets_efficiency_basic(2020, country, scenario) +
+    meets_efficiency_basic(2021, country, scenario) +
+    meets_efficiency_basic(2022, country, scenario) +
+    meets_efficiency_basic(2023, country, scenario) +
+    meets_efficiency_basic(2024, country, scenario)
+) / 25.0;
+
+sp avg_efficiency_advanced(country, scenario) := (
+    meets_efficiency_advanced(2000, country, scenario) +
+    meets_efficiency_advanced(2001, country, scenario) +
+    meets_efficiency_advanced(2002, country, scenario) +
+    meets_efficiency_advanced(2003, country, scenario) +
+    meets_efficiency_advanced(2004, country, scenario) +
+    meets_efficiency_advanced(2005, country, scenario) +
+    meets_efficiency_advanced(2006, country, scenario) +
+    meets_efficiency_advanced(2007, country, scenario) +
+    meets_efficiency_advanced(2008, country, scenario) +
+    meets_efficiency_advanced(2009, country, scenario) +
+    meets_efficiency_advanced(2010, country, scenario) +
+    meets_efficiency_advanced(2011, country, scenario) +
+    meets_efficiency_advanced(2012, country, scenario) +
+    meets_efficiency_advanced(2013, country, scenario) +
+    meets_efficiency_advanced(2014, country, scenario) +
+    meets_efficiency_advanced(2015, country, scenario) +
+    meets_efficiency_advanced(2016, country, scenario) +
+    meets_efficiency_advanced(2017, country, scenario) +
+    meets_efficiency_advanced(2018, country, scenario) +
+    meets_efficiency_advanced(2019, country, scenario) +
+    meets_efficiency_advanced(2020, country, scenario) +
+    meets_efficiency_advanced(2021, country, scenario) +
+    meets_efficiency_advanced(2022, country, scenario) +
+    meets_efficiency_advanced(2023, country, scenario) +
+    meets_efficiency_advanced(2024, country, scenario)
+) / 25.0;
+
+sp avg_efficiency_excellence(country, scenario) := (
+    meets_efficiency_excellence(2000, country, scenario) +
+    meets_efficiency_excellence(2001, country, scenario) +
+    meets_efficiency_excellence(2002, country, scenario) +
+    meets_efficiency_excellence(2003, country, scenario) +
+    meets_efficiency_excellence(2004, country, scenario) +
+    meets_efficiency_excellence(2005, country, scenario) +
+    meets_efficiency_excellence(2006, country, scenario) +
+    meets_efficiency_excellence(2007, country, scenario) +
+    meets_efficiency_excellence(2008, country, scenario) +
+    meets_efficiency_excellence(2009, country, scenario) +
+    meets_efficiency_excellence(2010, country, scenario) +
+    meets_efficiency_excellence(2011, country, scenario) +
+    meets_efficiency_excellence(2012, country, scenario) +
+    meets_efficiency_excellence(2013, country, scenario) +
+    meets_efficiency_excellence(2014, country, scenario) +
+    meets_efficiency_excellence(2015, country, scenario) +
+    meets_efficiency_excellence(2016, country, scenario) +
+    meets_efficiency_excellence(2017, country, scenario) +
+    meets_efficiency_excellence(2018, country, scenario) +
+    meets_efficiency_excellence(2019, country, scenario) +
+    meets_efficiency_excellence(2020, country, scenario) +
+    meets_efficiency_excellence(2021, country, scenario) +
+    meets_efficiency_excellence(2022, country, scenario) +
+    meets_efficiency_excellence(2023, country, scenario) +
+    meets_efficiency_excellence(2024, country, scenario)
+) / 25.0;
+
+// Composite scores per tier
+sp composite_basic(country, scenario) := 
+    avg_efficiency_basic(country, scenario) * 
+    avg_service(country, scenario) * 
+    avg_sustainability(country, scenario);
+
+sp composite_advanced(country, scenario) := 
+    avg_efficiency_advanced(country, scenario) * 
+    avg_service(country, scenario) * 
+    avg_sustainability(country, scenario);
+
+sp composite_excellence(country, scenario) := 
+    avg_efficiency_excellence(country, scenario) * 
+    avg_service(country, scenario) * 
+    avg_sustainability(country, scenario);
+
+// Output tier results
+output("");
+output("TIER:BASIC");
+output("country,efficiency_basic,service,sustainability,composite_basic");
+
+usa_eff_b := avg_efficiency_basic(usa, current_scenario);
+usa_comp_b := composite_basic(usa, current_scenario);
+output("1,", usa_eff_b, ",", usa_svc, ",", usa_sus, ",", usa_comp_b);
+
+china_eff_b := avg_efficiency_basic(china, current_scenario);
+china_comp_b := composite_basic(china, current_scenario);
+output("2,", china_eff_b, ",", china_svc, ",", china_sus, ",", china_comp_b);
+
+germany_eff_b := avg_efficiency_basic(germany, current_scenario);
+germany_comp_b := composite_basic(germany, current_scenario);
+output("3,", germany_eff_b, ",", germany_svc, ",", germany_sus, ",", germany_comp_b);
+
+india_eff_b := avg_efficiency_basic(india, current_scenario);
+india_comp_b := composite_basic(india, current_scenario);
+output("4,", india_eff_b, ",", india_svc, ",", india_sus, ",", india_comp_b);
+
+brazil_eff_b := avg_efficiency_basic(brazil, current_scenario);
+brazil_comp_b := composite_basic(brazil, current_scenario);
+output("5,", brazil_eff_b, ",", brazil_svc, ",", brazil_sus, ",", brazil_comp_b);
+
+output("");
+output("TIER:ADVANCED");
+output("country,efficiency_advanced,service,sustainability,composite_advanced");
+
+usa_eff_a := avg_efficiency_advanced(usa, current_scenario);
+usa_comp_a := composite_advanced(usa, current_scenario);
+output("1,", usa_eff_a, ",", usa_svc, ",", usa_sus, ",", usa_comp_a);
+
+china_eff_a := avg_efficiency_advanced(china, current_scenario);
+china_comp_a := composite_advanced(china, current_scenario);
+output("2,", china_eff_a, ",", china_svc, ",", china_sus, ",", china_comp_a);
+
+germany_eff_a := avg_efficiency_advanced(germany, current_scenario);
+germany_comp_a := composite_advanced(germany, current_scenario);
+output("3,", germany_eff_a, ",", germany_svc, ",", germany_sus, ",", germany_comp_a);
+
+india_eff_a := avg_efficiency_advanced(india, current_scenario);
+india_comp_a := composite_advanced(india, current_scenario);
+output("4,", india_eff_a, ",", india_svc, ",", india_sus, ",", india_comp_a);
+
+brazil_eff_a := avg_efficiency_advanced(brazil, current_scenario);
+brazil_comp_a := composite_advanced(brazil, current_scenario);
+output("5,", brazil_eff_a, ",", brazil_svc, ",", brazil_sus, ",", brazil_comp_a);
+
+output("");
+output("TIER:EXCELLENCE");
+output("country,efficiency_excellence,service,sustainability,composite_excellence");
+
+usa_eff_e := avg_efficiency_excellence(usa, current_scenario);
+usa_comp_e := composite_excellence(usa, current_scenario);
+output("1,", usa_eff_e, ",", usa_svc, ",", usa_sus, ",", usa_comp_e);
+
+china_eff_e := avg_efficiency_excellence(china, current_scenario);
+china_comp_e := composite_excellence(china, current_scenario);
+output("2,", china_eff_e, ",", china_svc, ",", china_sus, ",", china_comp_e);
+
+germany_eff_e := avg_efficiency_excellence(germany, current_scenario);
+germany_comp_e := composite_excellence(germany, current_scenario);
+output("3,", germany_eff_e, ",", germany_svc, ",", germany_sus, ",", germany_comp_e);
+
+india_eff_e := avg_efficiency_excellence(india, current_scenario);
+india_comp_e := composite_excellence(india, current_scenario);
+output("4,", india_eff_e, ",", india_svc, ",", india_sus, ",", india_comp_e);
+
+brazil_eff_e := avg_efficiency_excellence(brazil, current_scenario);
+brazil_comp_e := composite_excellence(brazil, current_scenario);
+output("5,", brazil_eff_e, ",", brazil_svc, ",", brazil_sus, ",", brazil_comp_e);
+
+output("");
+output("TIER:COMPOSITE");
+output("country,composite_basic,composite_advanced,composite_excellence");
+output("1,", usa_comp_b, ",", usa_comp_a, ",", usa_comp_e);
+output("2,", china_comp_b, ",", china_comp_a, ",", china_comp_e);
+output("3,", germany_comp_b, ",", germany_comp_a, ",", germany_comp_e);
+output("4,", india_comp_b, ",", india_comp_a, ",", india_comp_e);
+output("5,", brazil_comp_b, ",", brazil_comp_a, ",", brazil_comp_e);
