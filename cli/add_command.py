@@ -77,6 +77,34 @@ def cmd_add(args):
     
     module_dir.mkdir(parents=True)
     
+    # NEW: Create module-specific data and results folders
+    project_root = Path("deltap.toml").parent.resolve()
+    
+    root_data_dir = project_root / "data"
+    root_results_dir = project_root / "results"
+    
+    # Ensure root directories exist
+    if not root_data_dir.exists():
+        root_data_dir.mkdir()
+        print(f"✓ Created root data/ directory")
+    
+    if not root_results_dir.exists():
+        root_results_dir.mkdir()
+        print(f"✓ Created root results/ directory")
+    
+    # Create module-specific folders
+    module_data_dir = root_data_dir / module_name
+    module_results_dir = root_results_dir / module_name
+    
+    if not module_data_dir.exists():
+        module_data_dir.mkdir(parents=True)
+        (module_data_dir / "_synthetic").mkdir(exist_ok=True)
+        print(f"✓ Created data/{module_name}/ and data/{module_name}/_synthetic/")
+    
+    if not module_results_dir.exists():
+        module_results_dir.mkdir(parents=True)
+        print(f"✓ Created results/{module_name}/")
+    
     # Get module templates
     base_template_dir = Path(__file__).parent / "templates" / "module"
     
@@ -121,7 +149,6 @@ def cmd_add(args):
             ("simulation.dp.template", "simulation.dp"),
             ("populate.dp.template", "populate.dp"),
             ("visualize.toml.template", "visualize.toml"),
-
         ]
     
     created_files = []
@@ -141,34 +168,24 @@ def cmd_add(args):
         output_path.write_text(content)
         created_files.append(output_name)
     
-    # Create module data directory
-    data_dir = module_dir / "data"
-    data_dir.mkdir()
-    (data_dir / "_synthetic").mkdir()
-    
-    # Create placeholder .gitkeep files
-    (data_dir / ".gitkeep").write_text("")
-    (data_dir / "_synthetic" / ".gitkeep").write_text("")
-    
     # Success message
     domain_hint = f" ({template} domain)" if template != 'generic' else ""
     print(f"✓ Created module: src/{module_name}/{domain_hint}")
     for file in created_files:
         print(f"  - {file}")
-    print(f"  - data/ (with _synthetic/)")
     print()
     print(f"Next steps:")
-    print(f"  1. Edit src/{module_name}/config.dp to define your domains")
-    print(f"  2. Edit src/{module_name}/populate.dp to generate test data")
+    print(f"  1. Place your CSV in data/{module_name}/")
+    print(f"  2. Edit src/{module_name}/config.dp to define your domains")
     
     # Show shortcut if applicable
     shortcut = next((k for k, v in DOMAIN_SHORTCUTS.items() if v == module_name), None)
     if shortcut:
-        print(f"  3. Run: dp populate {shortcut}  (or: dp populate {module_name})")
-        print(f"  4. Run: dp run {shortcut}  (or: dp run {module_name})")
+        print(f"  3. Run: dp import {shortcut}  (or: dp import {module_name})")
+        print(f"  4. Run: dp run {shortcut} decision  (or: dp run {module_name} decision)")
     else:
-        print(f"  3. Run: dp populate {module_name}")
-        print(f"  4. Run: dp run {module_name}")
+        print(f"  3. Run: dp import {module_name}")
+        print(f"  4. Run: dp run {module_name} decision")
     
     return 0
 

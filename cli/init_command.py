@@ -45,8 +45,8 @@ def create_project_structure(
     init_git: bool,
     author: str,
     description: str,
-    starter_module: str,
-    template: str,
+    selected_modules: List[tuple],    
+    # template: str,
     include_examples: bool
 ):
     """Create project directory structure"""
@@ -93,9 +93,20 @@ description = "{description}"
         (project_path / "deltap.toml").write_text(toml_content)
     
     # Create directory structure
-    (project_path / "src" / "data").mkdir(parents=True, exist_ok=True)
-    (project_path / "src" / "results").mkdir(parents=True, exist_ok=True)
+    (project_path / "data").mkdir(parents=True, exist_ok=True)
+    (project_path / "results").mkdir(parents=True, exist_ok=True)
     (project_path / "src").mkdir(exist_ok=True)
+
+    # Copy examples if requested                             
+    for module_name, template in selected_modules:
+            module_data = project_path / "data" / module_name
+            module_data.mkdir(exist_ok=True)
+            (module_data / "_synthetic").mkdir(exist_ok=True)
+            
+            module_results = project_path / "results" / module_name
+            module_results.mkdir(exist_ok=True)
+            
+            print(f"✓ Created data/{module_name}/ and results/{module_name}/")
 
     # Copy examples if requested                             
     if include_examples:                                     
@@ -119,6 +130,7 @@ description = "{description}"
             gitignore_content = """# ΔP
 *.h5
 delta_db.h5
+delta_db_synthetic.h5
 results/
 __pycache__/
 *.pyc
@@ -139,7 +151,7 @@ Thumbs.db
             print("  (git init failed - git may not be installed)")
     
     # Create starter module using add_command
-    print(f"✓ Creating starter module: {starter_module}")
+    print(f"\n✓ Creating {len(selected_modules)} module(s)...")
 
     # Change to project directory temporarily
     original_dir = os.getcwd()
@@ -148,23 +160,26 @@ Thumbs.db
     try:
         from .add_command import cmd_add
         
-        # Create args object
-        class ModuleArgs:
-            pass
-        
-        args = ModuleArgs()
-        args.module_name = starter_module
-        args.template = template
-        
-        result = cmd_add(args)
-        if result != 0:
-            print(f"Warning: Failed to create starter module")
+        for module_name, template in selected_modules:
+            print(f"  Creating {module_name}...")
+            
+            class ModuleArgs:
+                pass
+            
+            args = ModuleArgs()
+            args.module_name = module_name
+            args.template = template
+            
+            result = cmd_add(args)
+            if result != 0:
+                print(f"    Warning: Failed to create {module_name}")
     except ImportError:
-        print(f"Warning: Could not import add_command, skipping starter module creation")
+        print(f"Warning: Could not import add_command, skipping module creation")
     finally:
         os.chdir(original_dir)
     
     return True
+
 
 
 def cmd_init(args=None):
@@ -190,7 +205,7 @@ def cmd_init(args=None):
     description = simple_input("Description (optional)", "")
     
     # 4. Starter module domain selection
-    print("\nSelect starter module domain:")
+    print("\nSelect starter module domains (comma-separated, or 'all'):")
     print("  1. Generic (domain-agnostic template)")
     print("  2. Logistics (lg) - Supply chains, routing, networks")
     print("  3. Finance (fi) - Risk, portfolios, trading")
@@ -198,18 +213,24 @@ def cmd_init(args=None):
     print("  5. Manufacturing (mf) - Production, quality, scheduling")
     print("  6. Energy (en) - Grid optimization, forecasting")
 
-    choice = simple_input("Choose (number)", "1").strip()
+    choice = simple_input("Choose (e.g., '2,5' or 'all')", "1").strip()
 
     domain_map = {
-        '1': ('generic', 'default'),
+        '1': ('generic', 'generic'),
         '2': ('logistics', 'logistics'),
         '3': ('finance', 'finance'),
         '4': ('healthcare', 'healthcare'),
         '5': ('manufacturing', 'manufacturing'),
         '6': ('energy', 'energy'),
     }
+    if choice.lower() == 'all':
+        selected_modules = [(name, template) for k, (name, template) in domain_map.items() if k != '1']
+    elif ',' in choice:
+        selected_modules = [domain_map[c.strip()] for c in choice.split(',') if c.strip() in domain_map]
+    else:
+        selected_modules = [domain_map.get(choice, ('generic', 'generic'))]
 
-    template, starter_module = domain_map.get(choice, ('generic', 'default'))    
+
     # 5. Include examples
     include_examples = simple_confirm("Include example modules?", False) 
     
@@ -221,26 +242,24 @@ def cmd_init(args=None):
         init_git=init_git,
         author=author or "Unknown",
         description=description or "",
-        starter_module=starter_module,
-        template=template,
+        selected_modules=selected_modules, 
         include_examples=include_examples 
     )
     
     if success:
         print(f"\n✓ Created {project_name}/")
         
-        # Show next steps
+        # Show next steps for each module
         print(f"\nNext steps:")
         print(f"  cd {project_name}")
-        print(f"  dp populate {starter_module}")
-        print(f"  dp run {starter_module}")
-        print(f"\nAdd more modules:")
-        print(f"  dp add <module_name>")
+        for module_name, _ in selected_modules:
+            print(f"  # Place CSV in data/{module_name}/")
+        print(f"  dp import <module>")
+        print(f"  dp run <module> decision")
         
         return 0
     else:
         return 1
-
 
 def main():
     """Entry point for standalone execution"""
