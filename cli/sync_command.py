@@ -92,7 +92,8 @@ def sync_csv_to_hdf5(csv_path: Path, db_manager, verbose=False):
 def cmd_sync(args):
     """Sync CSV/JSON data to HDF5 database"""
     module = args.module if hasattr(args, 'module') and args.module else None
-    
+    use_synthetic = getattr(args, 'synthetic', False) 
+
     # Resolve shortcuts
     if module:
         module = DOMAIN_SHORTCUTS.get(module, module)
@@ -114,7 +115,7 @@ def cmd_sync(args):
         print("Make sure the interpreter module is installed.")
         return 1
     
-    db_file = Path('delta_db.h5')
+    db_file = Path('delta_db_synthetic.h5') if use_synthetic else Path('delta_db.h5')
     
     print(f"🔄 Syncing data to {db_file}...")
     print()
