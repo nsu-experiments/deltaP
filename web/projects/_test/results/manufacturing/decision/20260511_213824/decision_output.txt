@@ -1,0 +1,74 @@
+=== manufacturing Decision Analysis (Real Bioethanol Data) ===
+
+Scenario: Baseline (Govt_Incentive=0)
+
+USA:
+  Efficiency:      1.0
+  Service:         0.68
+  Sustainability:  0.4
+  Composite:       0.272
+
+China:
+  Efficiency:      1.0
+  Service:         0.52
+  Sustainability:  0.36
+  Composite:       0.1872
+
+Germany:
+  Efficiency:      1.0
+  Service:         0.64
+  Sustainability:  0.4
+  Composite:       0.256
+
+India:
+  Efficiency:      1.0
+  Service:         0.64
+  Sustainability:  0.4
+  Composite:       0.256
+
+Brazil:
+  Efficiency:      1.0
+  Service:         0.68
+  Sustainability:  0.4
+  Composite:       0.272
+
+
+=== CSV Output ===
+country,efficiency,service,sustainability,composite
+1, 1.0 , 0.68 , 0.4 , 0.272
+2, 1.0 , 0.52 , 0.36 , 0.1872
+3, 1.0 , 0.64 , 0.4 , 0.256
+4, 1.0 , 0.64 , 0.4 , 0.256
+5, 1.0 , 0.68 , 0.4 , 0.272
+
+TIER:BASIC
+country,efficiency_basic,service,sustainability,composite_basic
+1, 1.0 , 0.68 , 0.4 , 0.272
+2, 1.0 , 0.52 , 0.36 , 0.1872
+3, 1.0 , 0.64 , 0.4 , 0.256
+4, 1.0 , 0.64 , 0.4 , 0.256
+5, 1.0 , 0.68 , 0.4 , 0.272
+
+TIER:ADVANCED
+country,efficiency_advanced,service,sustainability,composite_advanced
+1, 0.68 , 0.68 , 0.4 , 0.18496000000000004
+2, 0.56 , 0.52 , 0.36 , 0.104832
+3, 0.52 , 0.64 , 0.4 , 0.13312000000000002
+4, 0.56 , 0.64 , 0.4 , 0.14336000000000002
+5, 0.36 , 0.68 , 0.4 , 0.09792000000000001
+
+TIER:EXCELLENCE
+country,efficiency_excellence,service,sustainability,composite_excellence
+1, 0.12 , 0.68 , 0.4 , 0.03264
+2, 0.24 , 0.52 , 0.36 , 0.044927999999999996
+3, 0.12 , 0.64 , 0.4 , 0.030719999999999997
+4, 0.16 , 0.64 , 0.4 , 0.04096
+5, 0.2 , 0.68 , 0.4 , 0.054400000000000004
+
+TIER:COMPOSITE
+country,composite_basic,composite_advanced,composite_excellence
+1, 0.272 , 0.18496000000000004 , 0.03264
+2, 0.1872 , 0.104832 , 0.044927999999999996
+3, 0.256 , 0.13312000000000002 , 0.030719999999999997
+4, 0.256 , 0.14336000000000002 , 0.04096
+5, 0.272 , 0.09792000000000001 , 0.054400000000000004
